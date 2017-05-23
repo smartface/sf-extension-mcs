@@ -79,8 +79,8 @@ Please [submit an issue](https://github.com/msmete/sf-extension-mcs/issues) on G
 
 ## Code of Conduct
 We are committed to making participation in this project a harassment-free experience for everyone, regardless of the level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
-Please read and follow our [Code of Conduct](https://github.com/msmete/sf-extension-mcs/blob/master/CODE_OF_CONDUCT.md).
+Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## License
 
-This project is licensed under the terms of the MIT license. See the [LICENSE](https://github.com/msmete/sf-extension-mcs/blob/master/LICENSE) file. Within the scope of this license, all modifications to the source code, regardless of the fact that it is used commercially or not, shall be committed as a contribution back to this repository.
+This project is licensed under the terms of the MIT license. See the [LICENSE](./LICENSE) file. Within the scope of this license, all modifications to the source code, regardless of the fact that it is used commercially or not, shall be committed as a contribution back to this repository.
