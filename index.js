@@ -1,36 +1,34 @@
 const Notications = require("sf-core/notifications");
 const Http = require('sf-core/net/http');
 const System = require('sf-core/device/system');
-
+const expect = require('chai').expect
 const Base64_Helper = require("./base64");
+const Base64 = new Base64_Helper();
 
-function MCS() {
+/**
+ * Creates new instace of MCS
+ * @class
+ * @params {object} options - init object
+ * @params {string} options.baseUrl - MCS Base URL
+ * @params {string} options.backendId - MCS BackendId
+ * @params {string} options.androidApplicationKey - MCS Android Client Key
+ * @params {string} options.iOSApplicationKey - MCS iOS Client Key
+ * @params {string} options.anonymousKey - MCS Basic Anonymous Key
+ */
+function MCS(options) {
 
-    var Base64 = new Base64_Helper();
-    var self = this;
+    expect(options).to.be.a('object');
+    expect(options).to.have.property('backendId').that.is.a('string');
+    expect(options).to.have.property('baseUrl').that.is.a('string');
 
-    this._backendID;
-    this._deviceToken;
-    this._baseUrl;
-    this._authorization;
-    this._androidApplicationKey;
-    this._iOSApplicationKey;
-
-    /**
-     * Init to MCS
-     * @params {object} options - init object
-     * @params {string} options.baseUrl - MCS Base URL
-     * @params {string} options.backendId - MCS BackendId
-     * @params {string} options.androidApplicationKey - MCS Android Client Key
-     * @params {string} options.iOSApplicationKey - MCS iOS Client Key
-     */
-    this.init = function init(options) {
-        this._baseUrl = options.baseUrl;
-        this._backendID = options.backendId;
-        this._androidApplicationKey = options.androidApplicationKey;
-        this._iOSApplicationKey = options.iOSApplicationKey;
-    };
-
+    const self = this;
+    var backendID = options.backendId;
+    var deviceToken;
+    var baseUrl = options.baseUrl;
+    var anonymousKey = options.anonymousKey;
+    var authorization = anonymousKey ? "Basic " + anonymousKey : "";
+    var androidApplicationKey = options.androidApplicationKey;
+    var iOSApplicationKey = options.iOSApplicationKey;
 
     /**
     * login to MCS
@@ -60,11 +58,11 @@ function MCS() {
         var username = options.username;
         var password = options.password;
 
-        var url = self._baseUrl + '/mobile/platform/users/' + username;
+        var url = baseUrl + '/mobile/platform/users/' + username;
         var headers = {
             'oracle-mobile-api-version': '1.0',
             'Content-Type': 'application/json; charset=utf-8',
-            'Oracle-Mobile-Backend-Id': self._backendID,
+            'Oracle-Mobile-Backend-Id': backendID,
             'Authorization': 'Basic ' + Base64.encode(username + ':' + password)
         };
         var body = '';
@@ -79,13 +77,14 @@ function MCS() {
             },
             function(e) {
 
-                self._authorization = 'Basic ' + Base64.encode(username + ':' + password);
+                authorization = 'Basic ' + Base64.encode(username + ':' + password);
 
                 var response = JSON.parse(e.body.toString());
 
                 if (response.id == null) {
                     callback(e.body.toString());
-                } else {
+                }
+                else {
                     callback(null, e.body.toString());
                 }
 
@@ -94,6 +93,13 @@ function MCS() {
                 callback(e);
             }
         );
+    };
+
+    /**
+     * Logs out authenticated user, using Anonymous Key if provided
+     */
+    this.logout = function logout() {
+        authorization = anonymousKey ? "Basic " + anonymousKey : "";
     };
 
 
@@ -129,18 +135,18 @@ function MCS() {
         Notications.registerForPushNotifications(
             function(e) {
 
-                self._deviceToken = e.token;
+                deviceToken = e.token;
 
                 var notificationProvider = (System.OS == 'iOS') ? 'APNS' : 'GCM';
-                var url = self._baseUrl + '/mobile/platform/devices/register';
+                var url = baseUrl + '/mobile/platform/devices/register';
                 var headers = {
                     'Content-Type': 'application/json; charset=utf-8',
-                    'Oracle-Mobile-Backend-Id': self._backendID,
-                    'Authorization': self._authorization
+                    'Oracle-Mobile-Backend-Id': backendID,
+                    'Authorization': authorization
                 };
 
                 var body = {
-                    notificationToken: self._deviceToken,
+                    notificationToken: deviceToken,
                     notificationProvider: notificationProvider,
                     mobileClient: {
                         id: packageName,
@@ -165,7 +171,8 @@ function MCS() {
 
                         if (response.id == null) {
                             callback(e.body.toString());
-                        } else {
+                        }
+                        else {
                             callback(null, e.body.toString());
                         }
 
@@ -201,11 +208,11 @@ function MCS() {
                 var packageName = options.packageName;
 
                 var notificationProvider = (System.OS == 'iOS') ? 'APNS' : 'GCM';
-                var url = self._baseUrl + '/mobile/platform/devices/deregister';
+                var url = baseUrl + '/mobile/platform/devices/deregister';
                 var headers = {
                     'Content-Type': 'application/json; charset=utf-8',
-                    'Oracle-Mobile-Backend-Id': self._backendID,
-                    'Authorization': self._authorization
+                    'Oracle-Mobile-Backend-Id': backendID,
+                    'Authorization': authorization
                 };
 
                 var body = {
@@ -265,16 +272,18 @@ function MCS() {
         var deviceID = options.deviceId;
         var sessionID = options.sessionId;
         var jsonBody = options.body;
+        var applicationKey = (System.OS == 'iOS') ? iOSApplicationKey : androidApplicationKey;
+        expect(applicationKey).to.be.a('string');
 
         if (typeof jsonBody === "object")
             jsonBody = JSON.stringify(jsonBody);
 
-        var url = self._baseUrl + '/mobile/platform/analytics/events';
+        var url = baseUrl + '/mobile/platform/analytics/events';
         var headers = {
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'authorization': self._authorization,
+            'Oracle-Mobile-Backend-Id': backendID,
+            'authorization': authorization,
             'Content-Type': 'application/json; charset=utf-8',
-            'oracle-mobile-application-key': (System.OS == 'iOS') ? self._iOSApplicationKey : self._androidApplicationKey,
+            'oracle-mobile-application-key': applicationKey,
             'oracle-mobile-analytics-session-id': sessionID,
             'oracle-mobile-device-id': deviceID,
         };
@@ -293,7 +302,8 @@ function MCS() {
 
                 if (response.message == null) {
                     callback(e.body.toString());
-                } else {
+                }
+                else {
                     callback(null, e.body.toString());
                 }
 
@@ -349,12 +359,12 @@ function MCS() {
     this.getCollectionList = function getCollectionList(callback) {
 
 
-        var url = self._baseUrl + '/mobile/platform/storage/collections';
+        var url = baseUrl + '/mobile/platform/storage/collections';
         var headers = {
             'oracle-mobile-api-version': '1.0',
             'Content-Type': 'application/json; charset=utf-8',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization
         };
         var body = '';
 
@@ -372,7 +382,8 @@ function MCS() {
 
                 if (response.items == null) {
                     callback(e.body.toString());
-                } else {
+                }
+                else {
                     var resultArr = [];
                     for (var i = 0; i < response.items.length; i++) {
 
@@ -420,12 +431,12 @@ function MCS() {
         if (typeof options === "object" && options.collectionId)
             collectionId = options.collectionId;
 
-        var url = self._baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
+        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
         var headers = {
             'oracle-mobile-api-version': '1.0',
             'Content-Type': 'application/json; charset=utf-8',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization
         };
         var body = '';
 
@@ -443,7 +454,8 @@ function MCS() {
 
                 if (response.items == null) {
                     callback(e.body.toString());
-                } else {
+                }
+                else {
                     var resultArr = [];
 
                     for (var i = 0; i < response.items.length; i++) {
@@ -489,12 +501,12 @@ function MCS() {
         var collectionId = options.collectionId;
         var itemId = options.itemId;
 
-        var url = self._baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
+        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
         var headers = {
             'oracle-mobile-api-version': '1.0',
             'Content-Type': 'application/json; charset=utf-8',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization
         };
         var body = '';
 
@@ -561,11 +573,11 @@ function MCS() {
         var contentType = options.contentType;
 
 
-        var url = self._baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
+        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
         var headers = {
             //'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization,
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization,
             'Oracle-Mobile-Name': itemName,
             'Content-Type': contentType
         };
@@ -605,11 +617,11 @@ function MCS() {
         var collectionId = options.collectionId;
         var itemId = options.itemId;
 
-        var url = self._baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
+        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
         var headers = {
             'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization
         };
         var body = '';
 
@@ -655,13 +667,13 @@ function MCS() {
         }
         query = query.slice(0, query.length - 1);
 
-        var url = self._baseUrl + '/mobile/custom/' + apiName + '/' + endpointName + '?' + query;
+        var url = baseUrl + '/mobile/custom/' + apiName + '/' + endpointName + '?' + query;
 
         console.log(url);
         var headers = {
             'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization
         };
         var body = '';
 
@@ -704,11 +716,11 @@ function MCS() {
         var endpointName = options.endpointName;
         var headerParameters = options.headerParameters;
 
-        var url = self._baseUrl + '/mobile/custom/' + apiName + '/' + endpointName;
+        var url = baseUrl + '/mobile/custom/' + apiName + '/' + endpointName;
         var headers = {
             'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization
         };
 
         for (var i = 0; i < headerParameters.length; i++) {
@@ -748,12 +760,12 @@ function MCS() {
      */
     this.getAppPolicies = function getAppPolicies(callback) {
 
-        var url = self._baseUrl + '/mobile/platform/appconfig/client';
+        var url = baseUrl + '/mobile/platform/appconfig/client';
 
         var headers = {
             'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization
         };
         var body = '';
 
@@ -941,22 +953,23 @@ function MCS() {
         var pathStr = options.pathStr;
         var isQuery = options.isQuery;
 
-        var url = self._baseUrl + '/mobile/platform/location/' + pathStr;
+        var url = baseUrl + '/mobile/platform/location/' + pathStr;
 
 
 
         if (isQuery) {
 
             url += '?' + key + '=' + value;
-        } else {
+        }
+        else {
             url += '/' + value;
         }
 
 
         var headers = {
             'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': self._backendID,
-            'Authorization': self._authorization,
+            'Oracle-Mobile-Backend-Id': backendID,
+            'Authorization': authorization,
             key: value
         };
         var body = '';

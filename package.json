@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Oracle MSC Plugin for Smartface Native Framework",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@bitbucket.org:smartface-team/sf-extension-mcs.git"
@@ -14,7 +11,8 @@
     "smartface",
     "plugin",
     "oracle",
-    "javascript"
+    "javascript",
+    "mcs"
   ],
   "author": {
     "name": "Smartface",
@@ -24,5 +22,8 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/smartface-team/sf-extension-mcs#readme",
   "devDependencies": {},
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "chai": "^3.5.0"
+  }
 }
