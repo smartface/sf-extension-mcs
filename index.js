@@ -8,12 +8,12 @@ const Base64 = new Base64_Helper();
 /**
  * Creates new instace of MCS
  * @class
- * @params {object} options - init object
- * @params {string} options.baseUrl - MCS Base URL
- * @params {string} options.backendId - MCS BackendId
- * @params {string} options.androidApplicationKey - MCS Android Client Key
- * @params {string} options.iOSApplicationKey - MCS iOS Client Key
- * @params {string} options.anonymousKey - MCS Basic Anonymous Key
+ * @param {object} options - init object
+ * @param {string} options.baseUrl - MCS Base URL
+ * @param {string} options.backendId - MCS BackendId
+ * @param {string} options.androidApplicationKey - MCS Android Client Key
+ * @param {string} options.iOSApplicationKey - MCS iOS Client Key
+ * @param {string} options.anonymousKey - MCS Basic Anonymous Key
  */
 function MCS(options) {
 
@@ -31,28 +31,25 @@ function MCS(options) {
     var iOSApplicationKey = options.iOSApplicationKey;
 
     /**
-    * login to MCS
-    * @params {object} options - login options
-    * @params {string} options.username - MCS Username
-    * @params {string} options.password - MCS Password
-    *
-    * @callback callback
-    * @params {string} err - Error
-    * @params {string} result - json result
-    *
-    * @example result:
-        {
-          "id": "295e450a-63f0-41fa-be43-cd2dbcb21598",
-          "username": "joe",
-          "email": "joe@example.com",
-          "firstName": "Joe",
-          "lastName": "Doe",
-          "links": [
-            { "rel": "canonical", "href": "/mobile/platform/users/joe" },
-            { "rel": "self", "href": "/mobile/platform/users/joe" }
-          ]
-        }
-    */
+     * login to MCS
+     * @method
+     * @param {object} options - login options
+     * @param {string} options.username - MCS Username
+     * @param {string} options.password - MCS Password
+     * @param {MCS~loginCallback} callback for login
+     * @example result:
+     *   {
+     *     "id": "295e450a-63f0-41fa-be43-cd2dbcb21598",
+     *     "username": "joe",
+     *     "email": "joe@example.com",
+     *     "firstName": "Joe",
+     *     "lastName": "Doe",
+     *     "links": [
+     *       { "rel": "canonical", "href": "/mobile/platform/users/joe" },
+     *       { "rel": "self", "href": "/mobile/platform/users/joe" }
+     *     ]
+     *   }
+     */
     this.login = function login(options, callback) {
 
         var username = options.username;
@@ -96,6 +93,13 @@ function MCS(options) {
     };
 
     /**
+     * @callback MCS~loginCallback
+     * @param {string} err - Error
+     * @param {string} result - json result
+     */
+
+
+    /**
      * Logs out authenticated user, using Anonymous Key if provided
      */
     this.logout = function logout() {
@@ -104,29 +108,26 @@ function MCS(options) {
 
 
     /**
-    * Register device push notification token to MCS
-    * @params {object} options - push notification options
-    * @params {string} options.packageName - Application package name
-    * @params {string} options.version - Application version
-    *
-    * @callback callback
-    * @params {string} err - Error
-    * @params {string} result - json result
-    *
-    * @example result:
-        {
-          "id": "8a8a1eff-83c3-41b4-bea8-33357962d9a7",
-          "user": "joe",
-          "notificationToken": "03767dea-29ac-4440-b4f6-75a755845ade",
-          "notificationProvider": "APNS",
-          "mobileClient": {
-            "id": "com.oracle.myapplication",
-            "version": "1.0",
-            "platform": "IOS"
-          },
-          "modifiedOn": "2015-05-05'T'12:09:33.281'Z"
-        }
-    */
+     * Register device push notification token to MCS
+     * @method
+     * @param {object} options - push notification options
+     * @param {string} options.packageName - Application package name
+     * @param {string} options.version - Application version
+     * @param {MCS~registerDeviceTokenCallback} callback for registerDeviceToken
+     * @example result:
+     *   {
+     *     "id": "8a8a1eff-83c3-41b4-bea8-33357962d9a7",
+     *     "user": "joe",
+     *     "notificationToken": "03767dea-29ac-4440-b4f6-75a755845ade",
+     *     "notificationProvider": "APNS",
+     *     "mobileClient": {
+     *       "id": "com.oracle.myapplication",
+     *       "version": "1.0",
+     *       "platform": "IOS"
+     *     },
+     *     "modifiedOn": "2015-05-05'T'12:09:33.281'Z"
+     *   }
+     */
     this.registerDeviceToken = function registerDeviceToken(options, callback) {
 
         var packageName = options.packageName;
@@ -188,17 +189,19 @@ function MCS(options) {
             }
         );
     };
+    /**
+     * @callback MCS~registerDeviceTokenCallback
+     * @param {string} err - Error
+     * @param {string} result - json result
+     */
 
 
     /**
-     * Deregister device push notification token to MCS
-     * @params {object} options - push notification options
-     * @params {string} options.packageName - Application package name
-     *
-     * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
-     *
+     * Deregister device push notification token from MCS
+     * @method
+     * @param {object} options - push notification options
+     * @param {string} options.packageName - Application package name
+     * @param {MCS~deregisterDeviceTokenCallback} callback for deregisterDeviceToken
      */
     this.deregisterDeviceToken = function deregisterDeviceToken(options, callback) {
 
@@ -250,23 +253,22 @@ function MCS(options) {
             }
         );
     };
+    /**
+     * @callback MCS~deregisterDeviceTokenCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
 
     /**
-    * Send Analytic Event to MCS
-    * @params {object} options - Analytic options
-    * @params {string} options.deviceId - Specific Device ID
-    * @params {string} options.sessionId - Session ID
-    * @params {object} options.body - Event json array
-    * @example options.body:
-    * https://docs.oracle.com/en/cloud/paas/mobile-cloud/mcsra/op-mobile-platform-analytics-events-post.html
-    *
-    * @callback callback
-    * @params {string} err - Error
-    * @params {string} result - json result
-    *
-    * @example result:
-        {"message": "1 events accepted for processing."}
-    */
+     * Send Analytic Event to MCS
+     * @see {@link https://docs.oracle.com/en/cloud/paas/mobile-cloud/mcsra/op-mobile-platform-analytics-events-post.html Oracle Docs}
+     * @method
+     * @param {object} options - Analytic options
+     * @param {string} options.deviceId - Specific Device ID
+     * @param {string} options.sessionId - Session ID
+     * @param {object} options.body - Event json array
+     * @param {MCS~sendAnalyticCallback} callback for sendAnalytic
+     */
     this.sendAnalytic = function sendAnalytic(options, callback) {
 
         var deviceID = options.deviceId;
@@ -314,21 +316,23 @@ function MCS(options) {
             }
         );
     };
+    /**
+     * @callback MCS~sendAnalyticCallback
+     * @param {string} err - Error
+     * @param {string} result - json result
+     * @example result:
+     *  {"message": "1 events accepted for processing."}
+     */
 
     /**
-    * Send Analytic Event to MCS
-    * @params {object} options - Analytic options
-    * @params {string} options.deviceId - Specific Device ID
-    * @params {string} options.sessionId - Session ID
-    * @params {object} options.eventName - Event name
-    *
-    * @callback callback
-    * @params {string} err - Error
-    * @params {string} result - json result
-    *
-    * @example result:
-        {"message": "1 events accepted for processing."}
-    */
+     * Send Analytic Event to MCS
+     * @method
+     * @param {object} options - Analytic options
+     * @param {string} options.deviceId - Specific Device ID
+     * @param {string} options.sessionId - Session ID
+     * @param {object} options.eventName - Event name
+     * @param {MCS~sendBasicEventCallback} callback for sendBasicEvent
+     */
     this.sendBasicEvent = function sendBasicEvent(options, callback) {
 
         var eventName = options.eventName;
@@ -344,17 +348,19 @@ function MCS(options) {
         self.sendAnalytic(options, callback);
 
     };
+    /**
+     * @callback MCS~sendBasicEventCallback
+     * @param {string} err - Error
+     * @param {string} result - json result
+     * @example result:
+     *  {"message": "1 events accepted for processing."}
+     */
 
 
     /**
      * Get all collections list from MCS
-     *
-     * @callback callback
-     * @params {string} err - Error
-     * @params {array} result
-     * @params {string} result.id - collection id
-     * @params {string} result.description - collection description
-     *
+     * @method
+     * @param {MCS~getCollectionListCallback} callback for getCollectionList
      */
     this.getCollectionList = function getCollectionList(callback) {
 
@@ -405,24 +411,20 @@ function MCS(options) {
             }
         );
     };
+    /**
+     * @callback MCS~getCollectionListCallback
+     * @param {string} err - Error
+     * @param {object[]} result array for collections
+     * @param {string} result[].id - collection id
+     * @param {string} result[].description - collection description
+     */
 
 
     /**
      * Get item list in collection from MCS
-     * @params {string|object} options - MCS collection id
-     * @params {string} options.collectionId - MCS collection id
-     *
-     * @callback callback
-     * @params {string} err - Error
-     * @params {array} result
-     * @params {string} result.id - item id
-     * @params {string} result.name - item name
-     * @params {string} result.contentType - item contentType
-     * @params {string} result.createdBy - item createdBy
-     * @params {string} result.createdOn - item createdOn
-     * @params {string} result.modifiedBy - item modifiedBy
-     * @params {string} result.modifiedOn - item modifiedOn
-     *
+     * @param {string|object} options - MCS collection id
+     * @param {string} options.collectionId - MCS collection id
+     * @param {getItemListInCollectionCallback} callback for getItemListInCollection
      */
     this.getItemListInCollection = function getItemListInCollection(options, callback) {
 
@@ -483,17 +485,26 @@ function MCS(options) {
             }
         );
     };
+    /**
+     * @callback MCS~getItemListInCollectionCallback
+     * @param {string} err - Error
+     * @param {object[]} result
+     * @param {string} result[].id - item id
+     * @param {string} result[].name - item name
+     * @param {string} result[].contentType - item contentType
+     * @param {string} result[].createdBy - item createdBy
+     * @param {string} result[].createdOn - item createdOn
+     * @param {string} result[].modifiedBy - item modifiedBy
+     * @param {string} result[].modifiedOn - item modifiedOn
+     */
 
 
     /**
      * Get item data from MCS
-     * @params {object} options - Analytic options
-     * @params {string} options.collectionId - MCS collection Id
-     * @params {string} options.itemId - MCS item Id
-     *
-     * @callback callback
-     * @params {string} err - Error
-     * @params {string} result - base64 encoded file data
+     * @param {object} options - Analytic options
+     * @param {string} options.collectionId - MCS collection Id
+     * @param {string} options.itemId - MCS item Id
+     * @param {MCS~getItemCallback} callback for getItem
      *
      */
     this.getItem = function getItem(options, callback) {
@@ -528,43 +539,21 @@ function MCS(options) {
             }
         );
     };
+    /**
+     * @callback MCS~getItemCallback
+     * @param {string} err - Error
+     * @param {string} result - base64 encoded file data
+     */
 
     /**
-    * Store item to MCS
-    * @params {object} options - Analytic options
-    * @params {string} options.collectionId - MCS collection Id
-    * @params {string} options.itemName - item full name
-    * @params {string} options.base64EncodeData - item base64 encode data
-    * @params {string} options.contentType - item content type
-    *
-    * @callback callback
-    * @params {string} err - Error
-    * @params {string} result - json result
-    *
-    * @example result :
-        {
-          "id": "947119e5-b45c-498b-a643-dca279b24f07",
-          "name": "947119e5-b45c-498b-a643-dca279b24f07",
-          "user": "8c8f1a5a-e56b-494b-9a99-f03d562c1ee7",
-          "contentLength": 59,
-          "contentType": "text/plain",
-          "eTag": "\"1\"",
-          "createdBy": "mobileuser",
-          "createdOn": "2015-06-24T02:59:08Z",
-          "modifiedBy": "mobileuser",
-          "modifiedOn": "2015-06-24T02:59:08Z",
-          "links": [
-            {
-              "rel": "canonical",
-              "href": "/mobile/platform/storage/collections/technicianNotes/objects/947119e5-b45c-498b-a643-dca279b24f07?user=8c8f1a5a-e56b-494b-9a99-f03d562c1ee7"
-            },
-            {
-              "rel": "self",
-              "href": "/mobile/platform/storage/collections/technicianNotes/objects/947119e5-b45c-498b-a643-dca279b24f07"
-            }
-          ]
-        }
-    */
+     * Store item to MCS
+     * @param {object} options - Analytic options
+     * @param {string} options.collectionId - MCS collection Id
+     * @param {string} options.itemName - item full name
+     * @param {string} options.base64EncodeData - item base64 encode data
+     * @param {string} options.contentType - item content type
+     * @param {MCS~storeItemCallback} callback for storeItem
+     */
     this.storeItem = function storeItem(options, callback) {
 
         var collectionId = options.collectionId;
@@ -600,17 +589,41 @@ function MCS(options) {
             }
         );
     };
+    /**
+     * @callback MCS~storeItemCallback
+     * @param {string} err - Error
+     * @param {string} result - json result
+     * @example
+     *   {
+     *     "id": "947119e5-b45c-498b-a643-dca279b24f07",
+     *     "name": "947119e5-b45c-498b-a643-dca279b24f07",
+     *     "user": "8c8f1a5a-e56b-494b-9a99-f03d562c1ee7",
+     *     "contentLength": 59,
+     *     "contentType": "text/plain",
+     *     "eTag": "\"1\"",
+     *     "createdBy": "mobileuser",
+     *     "createdOn": "2015-06-24T02:59:08Z",
+     *     "modifiedBy": "mobileuser",
+     *     "modifiedOn": "2015-06-24T02:59:08Z",
+     *     "links": [
+     *       {
+     *         "rel": "canonical",
+     *         "href": "/mobile/platform/storage/collections/technicianNotes/objects/947119e5-b45c-498b-a643-dca279b24f07?user=8c8f1a5a-e56b-494b-9a99-f03d562c1ee7"
+     *       },
+     *       {
+     *         "rel": "self",
+     *         "href": "/mobile/platform/storage/collections/technicianNotes/objects/947119e5-b45c-498b-a643-dca279b24f07"
+     *       }
+     *     ]
+     *   }
+     */
 
     /**
      * Delete item data from MCS
-     * @params {object} options - Analytic options
-     * @params {string} options.collectionId - MCS collection Id
-     * @params {string} options.itemId - MCS item Id
-     *
-     * @callback callback
-     * @params {string} err - Error
-     * @params {string} result - info message
-     *
+     * @param {object} options - Analytic options
+     * @param {string} options.collectionId - MCS collection Id
+     * @param {string} options.itemId - MCS item Id
+     * @param {MCS~deleteItemCallback} callback for deleteItem
      */
     this.deleteItem = function deleteItem(options, callback) {
 
@@ -642,19 +655,25 @@ function MCS(options) {
             }
         );
     };
+    /**
+     * @callback MCS~deleteItemCallback
+     * @param {string} err - Error
+     * @param {string} result - info message
+     */
+
 
     /**
      * Custom Api Caller to MCS
-     * @params {object} options - api caller options
-     * @params {string} options.apiName - MCS Custom Api name
-     * @params {string} options.endpointName - MCS Custom Api endpoint name
-     * @params {array}  options.parameters - MCS query parameters array
-     * @params {string} options.parameters.key - MCS query parameter name
-     * @params {string} options.parameters.value - MCS query parameter value
+     * @param {object} options - api caller options
+     * @param {string} options.apiName - MCS Custom Api name
+     * @param {string} options.endpointName - MCS Custom Api endpoint name
+     * @param {array}  options.parameters - MCS query parameters array
+     * @param {string} options.parameters.key - MCS query parameter name
+     * @param {string} options.parameters.value - MCS query parameter value
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result - your web service result
+     * @param {string} err - Error
+     * @param {string} result - your web service result
      *
      */
     this.apiCallerGetMethod = function apiCallerGetMethod(options, callback) {
@@ -697,17 +716,17 @@ function MCS(options) {
 
     /**
      * Custom Api Caller to MCS
-     * @params {object} options - api caller options
-     * @params {string} options.apiName - MCS Custom Api name
-     * @params {string} options.endpointName - MCS Custom Api endpoint name
-     * @params {string|object} options.body - MCS Custom Api string or object body
-     * @params {array}  options.headerParameters - MCS header parameters array
-     * @params {string} options.headerParameters.key - MCS header parameter name
-     * @params {string} options.headerParameters.value - MCS header parameter value
+     * @param {object} options - api caller options
+     * @param {string} options.apiName - MCS Custom Api name
+     * @param {string} options.endpointName - MCS Custom Api endpoint name
+     * @param {string|object} options.body - MCS Custom Api string or object body
+     * @param {array}  options.headerParameters - MCS header parameters array
+     * @param {string} options.headerParameters.key - MCS header parameter name
+     * @param {string} options.headerParameters.value - MCS header parameter value
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result - your web service result
+     * @param {string} err - Error
+     * @param {string} result - your web service result
      *
      */
     this.apiCallerPostMethod = function apiCallerPostMethod(options, callback) {
@@ -754,8 +773,8 @@ function MCS(options) {
      * Get application policies from MCS
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
+     * @param {string} err - Error
+     * @param {string} result
      *
      */
     this.getAppPolicies = function getAppPolicies(callback) {
@@ -791,12 +810,12 @@ function MCS(options) {
 
     /**
      * Get Device Location List by Name
-     * @params {object} options
-     * @params {string} options.name
+     * @param {object} options
+     * @param {string} options.name
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
+     * @param {string} err - Error
+     * @param {string} result
      *
      */
     this.getDeviceLocationsByName = function getDeviceLocationsByName(options, callback) {
@@ -815,12 +834,12 @@ function MCS(options) {
 
     /**
      * Get Device Location List by Id
-     * @params {object} options
-     * @params {string} options.id
+     * @param {object} options
+     * @param {string} options.id
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
+     * @param {string} err - Error
+     * @param {string} result
      *
      */
     this.getDeviceLocationsById = function getDeviceLocationsById(options, callback) {
@@ -839,12 +858,12 @@ function MCS(options) {
 
     /**
      * Get Places List by Name
-     * @params {object} options
-     * @params {string} options.name
+     * @param {object} options
+     * @param {string} options.name
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
+     * @param {string} err - Error
+     * @param {string} result
      *
      */
     this.getPlaceByName = function getPlaceByName(options, callback) {
@@ -863,12 +882,12 @@ function MCS(options) {
 
     /**
      * Get Places List by Id
-     * @params {object} options
-     * @params {string} options.id
+     * @param {object} options
+     * @param {string} options.id
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
+     * @param {string} err - Error
+     * @param {string} result
      *
      */
     this.getPlaceById = function getPlaceById(options, callback) {
@@ -887,12 +906,12 @@ function MCS(options) {
 
     /**
      * Get Asset List by Name
-     * @params {object} options
-     * @params {string} options.name
+     * @param {object} options
+     * @param {string} options.name
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
+     * @param {string} err - Error
+     * @param {string} result
      *
      */
     this.getAssetByName = function getAssetByName(options, callback) {
@@ -911,12 +930,12 @@ function MCS(options) {
 
     /**
      * Get Asset List by Id
-     * @params {object} options
-     * @params {string} options.id
+     * @param {object} options
+     * @param {string} options.id
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
+     * @param {string} err - Error
+     * @param {string} result
      *
      */
     this.getAssetById = function getAssetById(options, callback) {
@@ -935,15 +954,15 @@ function MCS(options) {
 
     /**
      * Get Location List Base Function
-     * @params {object} options
-     * @params {string} options.key
-     * @params {string} options.value
-     * @params {string} options.pathStr
-     * @params {string} options.isQuery
+     * @param {object} options
+     * @param {string} options.key
+     * @param {string} options.value
+     * @param {string} options.pathStr
+     * @param {string} options.isQuery
      *
      * @callback callback
-     * @params {string} err - Error
-     * @params {string} result
+     * @param {string} err - Error
+     * @param {string} result
      *
      */
     function getLocationList(options, callback) {
