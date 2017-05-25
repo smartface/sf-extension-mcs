@@ -17,6 +17,7 @@
         * [.getItem(options, callback)](#MCS+getItem)
         * [.storeItem(options, callback)](#MCS+storeItem)
         * [.deleteItem(options, callback)](#MCS+deleteItem)
+        * [.createRequestOptions(options, callback)](#MCS+createRequestOptions)
         * [.getAppPolicies(callback)](#MCS+getAppPolicies)
         * [.getDeviceLocationsByName(options, callback)](#MCS+getDeviceLocationsByName)
         * [.getDeviceLocationsById(options, callback)](#MCS+getDeviceLocationsById)
@@ -36,6 +37,7 @@
         * [~getItemCallback](#MCS..getItemCallback) : <code>function</code>
         * [~storeItemCallback](#MCS..storeItemCallback) : <code>function</code>
         * [~deleteItemCallback](#MCS..deleteItemCallback) : <code>function</code>
+        * [~createRequestOptionsCallback](#MCS..createRequestOptionsCallback) : <code>function</code>
         * [~getAppPoliciesCallback](#MCS..getAppPoliciesCallback) : <code>function</code>
         * [~getDeviceLocationsByNameCallback](#MCS..getDeviceLocationsByNameCallback) : <code>function</code>
         * [~getDeviceLocationsByIdCallback](#MCS..getDeviceLocationsByIdCallback) : <code>function</code>
@@ -236,6 +238,20 @@ Delete item data from MCS
 | options.collectionId | <code>string</code> | MCS collection Id |
 | options.itemId | <code>string</code> | MCS item Id |
 | callback | [<code>deleteItemCallback</code>](#MCS..deleteItemCallback) | for deleteItem |
+
+<a name="MCS+createRequestOptions"></a>
+
+### mcS.createRequestOptions(options, callback)
+Create api request options for MCS Custom API
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> | Analytic options |
+| options.apiName | <code>string</code> | MCS Api Name |
+| options.endpointName | <code>string</code> | MCS Endpoint Name |
+| callback | [<code>createRequestOptionsCallback</code>](#MCS..createRequestOptionsCallback) | for createRequestOptions |
 
 <a name="MCS+getAppPolicies"></a>
 
@@ -485,6 +501,16 @@ result:
 | --- | --- | --- |
 | err | <code>string</code> | Error |
 | result | <code>string</code> | info message |
+
+<a name="MCS..createRequestOptionsCallback"></a>
+
+### MCS~createRequestOptionsCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| err | <code>string</code> | Error |
+| result | <code>string</code> |  |
 
 <a name="MCS..getAppPoliciesCallback"></a>
 

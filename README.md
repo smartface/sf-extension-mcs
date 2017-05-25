@@ -66,6 +66,9 @@ mcs.sendBasicEvent(optionsAnalytic, function(err, result) {
 });
 ```
 
+## API Documentation
+Full api documentation is in [api.md](./api.md)
+
 ## Need Help?
 
 Please [submit an issue](https://github.com/msmete/sf-extension-mcs/issues) on GitHub and provide information about your problem.
