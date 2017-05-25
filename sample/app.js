@@ -12,6 +12,7 @@ Application.onUnhandledError = function (e) {
     });
 };
 
+
 // Define routes and go to initial page of application
 Router.add("page1", require("./pages/page1"));
 Router.add("page2", require("./pages/page2"));

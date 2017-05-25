@@ -1,7 +1,6 @@
 const extend = require("js-base/core/extend");
 const Button = require('sf-core/ui/button');
 const Page = require("sf-core/ui/page");
-const TextBox = require('sf-core/ui/textbox');
 const Router = require("sf-core/ui/router");
 const Color = require('sf-core/ui/color');
 const TextAlignment = require('sf-core/ui/textalignment');
@@ -12,9 +11,10 @@ const Multimedia = require("sf-core/device/multimedia");
 const Image = require('sf-core/ui/image');
 const FlexLayout = require('sf-core/ui/flexlayout');
 const ActivityIndicator = require('sf-core/ui/activityindicator');
+const System = require('sf-core/device/system');
 
 
-var MCS;
+var mcs;
 var myListView;
 var fileArray;
 var self;
@@ -78,7 +78,7 @@ const Page3 = extend(Page)(
             Router.go('imagePage', {
                 'collectionId': CollectionID,
                 'imageId': fileArray[index].id,
-                'MCS': MCS
+                'MCS': mcs
             });
 
         };
@@ -89,12 +89,7 @@ const Page3 = extend(Page)(
 
 
         this.onShow = function(params) {
-
-            if (params) {
-                MCS = params.MCS;
                 getItems();
-            }
-
         };
 
 
@@ -107,7 +102,7 @@ function getItems() {
 
     loadingView.visible = true;
 
-    MCS.getCollectionList(
+    mcs.getCollectionList(
 
         function(err, result) { 
 
@@ -122,7 +117,7 @@ function getItems() {
 
             loadingView.visible = true;
             //----------------------------------------------
-            MCS.getItemListInCollection(CollectionID,
+            mcs.getItemListInCollection(CollectionID,
 
                 function(err, result) { 
 
@@ -177,7 +172,7 @@ function addfile_onPress() {
 
         var random_number = getRandomArbitrary(1000000000, 9999999999);
 
-        MCS.storeItem({
+        mcs.storeItem({
                 'collectionId': CollectionID,
                 'itemName': 'testFile_' + random_number + '.png',
                 'base64EncodeData': base64TestImageData,
@@ -219,7 +214,7 @@ var loadingViewCreator = function(id) {
         backgroundColor: Color.TRANSPARENT,
         touchEnabled: true
     });
-    if (Device.deviceOS != "Android") {
+    if (System.OS != "Android") {
         myActivityIndicator.flexGrow = 1;
     }
     loadingLayout.addChild(myActivityIndicator);

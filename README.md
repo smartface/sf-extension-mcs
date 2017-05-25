@@ -8,9 +8,8 @@ An extension to Oracle MCS Connection with Smartface Native Framework.
 ## Installation
 MCS Extension can be installed via npm easily from our public npm repository. The installation is pretty easy via Smartface Cloud IDE.
 
-- Open scripts/package.json file inside your workspace.
-- Add MCS extension dependency as:`"sf-extension-mcs": "^1.0.0"`
-- Run command `npm install` under the folder `scripts`
+- Open terminal
+- `(cd ~/workspace/scripts && npm i -S sf-extension-mcs)`
 - Finally require the extension as: `require("sf-extension-mcs")`
 
 ## How to use
@@ -18,21 +17,20 @@ MCS Extension can be installed via npm easily from our public npm repository. Th
 1) Init your MCS config
 
 ```javascript
-const MCS_Extension = require('sf-extension-mcs');
-var MCS = new MCS_Extension();
-
-// MCS INIT
+const MCS = require('sf-extension-mcs');
 var options = {
-	'backendId': 'YOUR BACKEND ID',
-	'baseUrl': 'YOUR BASE URL',
-	'androidApplicationKey': 'YOUR ANDROID APP KEY',
-	'iOSApplicationKey': 'YOUR IOS APP KEY'
+	'backendId': 'YOUR BACKEND ID', //required
+	'baseUrl': 'YOUR BASE URL', //required
+	'androidApplicationKey': 'YOUR ANDROID APP KEY', //required only for analytics & events
+	'iOSApplicationKey': 'YOUR IOS APP KEY', //required only for analytics & events
+	'anonymousKey': 'YOUR BASIC AUTHENTICATION ANONYMOUS KEY' //required only to perform operations without logging in first
 };
-MCS.init(options);
+var mcs = new MCS(options);
 ```
+
 2) Login to MCS (Example)
 ```javascript
-MCS.login({
+mcs.login({
 	'username': 'YOUR USER NAME',
 	'password': 'YOUR PASSWORD'
 },
@@ -52,12 +50,12 @@ function(err, result) {
 3) Send Basic Analytic Event (Example)
 ```javascript
 var optionsAnalytic = {
-	'deviceID': '112233',
-	'sessionID': '112233',
+	'deviceID': '112233', //required
+	'sessionID': '112233', //required
 	'eventName': 'sendBasicEvent'
 };
 
-MCS.sendBasicEvent(optionsAnalytic, function(err, result) {
+mcs.sendBasicEvent(optionsAnalytic, function(err, result) {
 
 	if (err) {
 		return alert("sendBasicEvent FAILED.  " + err);

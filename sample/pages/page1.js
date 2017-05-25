@@ -5,9 +5,9 @@ const Router = require("sf-core/ui/router");
 const Color = require('sf-core/ui/color');
 const FlexLayout = require('sf-core/ui/flexlayout');
 const ActivityIndicator = require('sf-core/ui/activityindicator');
+const Http = require('sf-core/net/http');
 
-const MCS_Extension = require('sf-extension-mcs');
-var MCS = new MCS_Extension();
+var mcs = require('../mcs');
 
 var loginSuccess = false;
 var loadingView;
@@ -21,75 +21,66 @@ const Page1 = extend(Page)(
         loadingView = loadingViewCreator(99999);
 
 
-        var button1 = new Button({
+        var btnLogin = new Button({
             text: 'Login',
             flexGrow: 1,
-            onPress: MCS_LOGIN
+            onPress: mcsLogin
         });
-        var button2 = new Button({
+        var btnRegister = new Button({
             text: 'Register Device For Push Notification',
             flexGrow: 1,
-            onPress: MCS_REGISTER
+            onPress: mcsRegister
         });
-        var button3 = new Button({
+        var btnDeregister = new Button({
             text: 'Deregister Device For Push Notification',
             flexGrow: 1,
-            onPress: MCS_DEREGISTER
+            onPress: mcsDeregister
         });
-        var button4 = new Button({
+        var btnSendBasicEvent = new Button({
             text: 'Send Analytic - Basic Event',
             flexGrow: 1,
-            onPress: MCS_SEND_BASIC_ANALYTIC
+            onPress: mcsSendBasicAnalytic
         });
-        var button5 = new Button({
+        var btnSendAnalytic = new Button({
             text: 'Send Analytic',
             flexGrow: 1,
-            onPress: MCS_SEND_ANALYTIC
+            onPress: mcsSendAnalytic
         });
-        var button6 = new Button({
+        var btnApiCaller = new Button({
             text: 'Api Caller (GET)',
             flexGrow: 1,
-            onPress: MCS_APICALLER_GET
+            onPress: mcsCreateRequest
         });
 
-        var button7 = new Button({
+        var btnDemoApp = new Button({
             text: 'Demo App',
             backgroundColor: Color.GREEN,
             flexGrow: 1,
-            onPress: DEMO_APP
+            onPress: demoApp
         });
 
 
 
         // MCS INIT
-        var options = {
-            'backendId': 'YOUR BACKEND ID',
-            'baseUrl': 'YOUR BASE URL',
-            'androidApplicationKey': 'YOUR ANDROID APP KEY',
-            'iOSApplicationKey': 'YOUR IOS APP KEY'
 
-        };
-        MCS.init(options);
-
-
-        this.layout.addChild(button1);
-        this.layout.addChild(button2);
-        this.layout.addChild(button3);
-        this.layout.addChild(button4);
-        this.layout.addChild(button5);
-        this.layout.addChild(button6);
-        this.layout.addChild(button7);
+        this.layout.addChild(btnLogin);
+        this.layout.addChild(btnRegister);
+        this.layout.addChild(btnDeregister);
+        this.layout.addChild(btnSendBasicEvent);
+        this.layout.addChild(btnSendAnalytic);
+        this.layout.addChild(btnApiCaller);
+        this.layout.addChild(btnDemoApp);
         this.layout.addChild(loadingView);
 
 
     });
 
 // Gets/sets press event callback for btn
-function MCS_LOGIN() {
+function mcsLogin() {
 
     loadingView.visible = true;
 
-    MCS.login({
+    mcs.login({
             'username': 'YOUR USER NAME',
             'password': 'YOUR PASSWORD'
         },
@@ -112,7 +103,7 @@ function MCS_LOGIN() {
 }
 
 
-function MCS_SEND_BASIC_ANALYTIC() {
+function mcsSendBasicAnalytic() {
 
 
 
@@ -128,7 +119,7 @@ function MCS_SEND_BASIC_ANALYTIC() {
         'eventName': 'sendBasicEvent'
     };
 
-    MCS.sendBasicEvent(optionsAnalytic, function(err, result) {
+    mcs.sendBasicEvent(optionsAnalytic, function(err, result) {
 
         loadingView.visible = false;
 
@@ -141,7 +132,7 @@ function MCS_SEND_BASIC_ANALYTIC() {
     });
 }
 
-function MCS_SEND_ANALYTIC() {
+function mcsSendAnalytic() {
 
     if (loginSuccess == false) {
         return alert("Login should be made first.");
@@ -159,7 +150,7 @@ function MCS_SEND_ANALYTIC() {
         }]
     };
 
-    MCS.sendAnalytic(optionsAnalytic, function(err, result) {
+    mcs.sendAnalytic(optionsAnalytic, function(err, result) {
 
         loadingView.visible = false;
 
@@ -172,7 +163,7 @@ function MCS_SEND_ANALYTIC() {
     });
 }
 
-function MCS_REGISTER() {
+function mcsRegister() {
 
     if (loginSuccess == false) {
         return alert("Login should be made first.");
@@ -186,7 +177,7 @@ function MCS_REGISTER() {
     };
 
 
-    MCS.registerDeviceToken(optionsRegisterDevice, function(err, result) {
+    mcs.registerDeviceToken(optionsRegisterDevice, function(err, result) {
 
         loadingView.visible = false;
 
@@ -200,7 +191,7 @@ function MCS_REGISTER() {
     });
 }
 
-function MCS_DEREGISTER() {
+function mcsDeregister() {
 
     if (loginSuccess == false) {
         return alert("Login should be made first.");
@@ -213,7 +204,7 @@ function MCS_DEREGISTER() {
         'version': '1.0.0',
     };
 
-    MCS.deregisterDeviceToken(optionsRegisterDevice, function(err, result) {
+    mcs.deregisterDeviceToken(optionsRegisterDevice, function(err, result) {
 
 
         loadingView.visible = false;
@@ -227,30 +218,7 @@ function MCS_DEREGISTER() {
     });
 }
 
-function MCS_APP_POLICIES() {
-
-
-    if (loginSuccess == false) {
-        return alert("Login should be made first.");
-    }
-
-    loadingView.visible = true;
-
-    MCS.getAppPolicies(function(err, result) {
-
-        loadingView.visible = false;
-
-        if (err) {
-            return alert("registerDeviceToken FAILED.  " + err);
-        }
-
-        alert("registerDeviceToken SUCC.  " + result.toString());
-
-
-    });
-}
-
-function MCS_APICALLER_GET() {
+function mcsCreateRequest() {
 
     if (loginSuccess == false) {
         return alert("Login should be made first.");
@@ -258,43 +226,42 @@ function MCS_APICALLER_GET() {
 
     loadingView.visible = true;
 
-    var optionsGetMethod = {
+    var options = {
         'apiName': 'weather',
         'endpointName': 'getCity',
-        'parameters': [
-
-            {
-                key: 'q',
-                value: 'ankara'
-
-            }, {
-                key: 'appid',
-                value: 'caf032ca9a5364cb41ca768e3553d9b3'
-
-            }
-        ]
     };
-    MCS.apiCallerGetMethod(optionsGetMethod, function(err, result) {
+    var requestOptions = mcs.apiCallerGetMethod(options);
+    var query = '?q=sanfrancisco&appid=caf032ca9a5364cb41ca768e3553d9b3';
+    
+    var url = requestOptions.url + '?' + query;
+    var headers = requestOptions.headers;
+    var body = '';
 
-        loadingView.visible = false;
+    Http.request({
+            'url': url,
+            'headers': headers,
+            'method': 'GET',
+            'body': body
 
-        if (err) {
-            return alert("sendAnalytic FAILED.  " + err);
+        },
+        function(e) {
+
+            loadingView.visible = false;
+
+            alert("mcsCreateRequest SUCC.  " + e.body.toString());
+        },
+        function(e) {
+
+            alert("mcsCreateRequest FAILED.  " + e);
         }
-
-        alert("sendAnalytic SUCC.  " + result.toString());
-
-
-    });
+    );
 
 }
 
 
-function DEMO_APP() {
+function demoApp() {
 
-    Router.go('page2', {
-        'MCS': MCS
-    });
+    Router.go('page2');
 
 }
 

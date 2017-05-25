@@ -52,6 +52,10 @@ function MCS(options) {
      */
     this.login = function login(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('username').that.is.a('string');
+        expect(options).to.have.property('password').that.is.a('string');
+
         var username = options.username;
         var password = options.password;
 
@@ -130,6 +134,11 @@ function MCS(options) {
      */
     this.registerDeviceToken = function registerDeviceToken(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('packageName').that.is.a('string');
+        expect(options).to.have.property('version').that.is.a('string');
+
+
         var packageName = options.packageName;
         var version = options.version;
 
@@ -205,6 +214,10 @@ function MCS(options) {
      */
     this.deregisterDeviceToken = function deregisterDeviceToken(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('packageName').that.is.a('string');
+
+
         Notications.registerForPushNotifications(
             function(e) {
 
@@ -271,6 +284,10 @@ function MCS(options) {
      */
     this.sendAnalytic = function sendAnalytic(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('deviceId').that.is.a('string');
+        expect(options).to.have.property('sessionId').that.is.a('string');
+
         var deviceID = options.deviceId;
         var sessionID = options.sessionId;
         var jsonBody = options.body;
@@ -334,6 +351,9 @@ function MCS(options) {
      * @param {MCS~sendBasicEventCallback} callback for sendBasicEvent
      */
     this.sendBasicEvent = function sendBasicEvent(options, callback) {
+
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('eventName').that.is.a('string');
 
         var eventName = options.eventName;
 
@@ -433,6 +453,8 @@ function MCS(options) {
         if (typeof options === "object" && options.collectionId)
             collectionId = options.collectionId;
 
+        expect(collectionId).to.be.a('string');
+
         var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
         var headers = {
             'oracle-mobile-api-version': '1.0',
@@ -509,6 +531,10 @@ function MCS(options) {
      */
     this.getItem = function getItem(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('collectionId').that.is.a('string');
+        expect(options).to.have.property('itemId').that.is.a('string');
+
         var collectionId = options.collectionId;
         var itemId = options.itemId;
 
@@ -555,6 +581,12 @@ function MCS(options) {
      * @param {MCS~storeItemCallback} callback for storeItem
      */
     this.storeItem = function storeItem(options, callback) {
+
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('collectionId').that.is.a("string");
+        expect(options).to.have.property('itemName').that.is.a('string');
+        expect(options).to.have.property('base64EncodeData').that.is.a('string');
+        expect(options).to.have.property('contentType').that.is.a('string');
 
         var collectionId = options.collectionId;
         var itemName = options.itemName;
@@ -627,6 +659,10 @@ function MCS(options) {
      */
     this.deleteItem = function deleteItem(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('collectionId').that.is.a("string");
+        expect(options).to.have.property('itemId').that.is.a('string');
+
         var collectionId = options.collectionId;
         var itemId = options.itemId;
 
@@ -661,121 +697,45 @@ function MCS(options) {
      * @param {string} result - info message
      */
 
-
     /**
-     * Custom Api Caller to MCS
-     * @param {object} options - api caller options
-     * @param {string} options.apiName - MCS Custom Api name
-     * @param {string} options.endpointName - MCS Custom Api endpoint name
-     * @param {array}  options.parameters - MCS query parameters array
-     * @param {string} options.parameters.key - MCS query parameter name
-     * @param {string} options.parameters.value - MCS query parameter value
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result - your web service result
-     *
+     * Create api request options for MCS Custom API
+     * @method
+     * @param {object} options - Analytic options
+     * @param {string} options.apiName - MCS Api Name
+     * @param {string} options.endpointName - MCS Endpoint Name
+     * @param {MCS~createRequestOptionsCallback} callback for createRequestOptions
      */
-    this.apiCallerGetMethod = function apiCallerGetMethod(options, callback) {
+    this.createRequestOptions = function createRequestOptions(options) {
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('apiName').that.is.a('string');
+        expect(options).to.have.property('endpointName').that.is.a('string');
 
         var apiName = options.apiName;
         var endpointName = options.endpointName;
-        var query = '';
-        for (var i = 0; i < options.parameters.length; i++) {
-            query += options.parameters[i].key + '=' + options.parameters[i].value + '&';
-        }
-        query = query.slice(0, query.length - 1);
-
-        var url = baseUrl + '/mobile/custom/' + apiName + '/' + endpointName + '?' + query;
-
-        console.log(url);
-        var headers = {
-            'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization
-        };
-        var body = '';
-
-        Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'GET',
-                'body': body
-
-            },
-            function(e) {
-
-                callback(null, e.body.toString());
-
-            },
-            function(e) {
-                callback(e);
-            }
-        );
-    };
-
-    /**
-     * Custom Api Caller to MCS
-     * @param {object} options - api caller options
-     * @param {string} options.apiName - MCS Custom Api name
-     * @param {string} options.endpointName - MCS Custom Api endpoint name
-     * @param {string|object} options.body - MCS Custom Api string or object body
-     * @param {array}  options.headerParameters - MCS header parameters array
-     * @param {string} options.headerParameters.key - MCS header parameter name
-     * @param {string} options.headerParameters.value - MCS header parameter value
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result - your web service result
-     *
-     */
-    this.apiCallerPostMethod = function apiCallerPostMethod(options, callback) {
-
-        var apiName = options.apiName;
-        var endpointName = options.endpointName;
-        var headerParameters = options.headerParameters;
-
-        var url = baseUrl + '/mobile/custom/' + apiName + '/' + endpointName;
-        var headers = {
+        var urlBase = baseUrl + '/mobile/custom/' + apiName + '/' + endpointName + '?';
+        var headersBase = {
             'Content-Type': 'application/json',
             'Oracle-Mobile-Backend-Id': backendID,
             'Authorization': authorization
         };
 
-        for (var i = 0; i < headerParameters.length; i++) {
-            headers[headerParameters[i].key] = headerParameters[i].value;
-        }
+        return {
+            url: urlBase,
+            headers: headersBase
+        };
 
-
-        var body = options.body;
-
-        Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'POST',
-                'body': body
-
-            },
-            function(e) {
-
-                callback(null, e.body.toString());
-
-            },
-            function(e) {
-                callback(e);
-            }
-        );
     };
-
-
-
-    /**
-     * Get application policies from MCS
-     *
-     * @callback callback
+     /**
+     * @callback MCS~createRequestOptionsCallback
      * @param {string} err - Error
      * @param {string} result
-     *
+     */
+     
+    
+    /**
+     * Get application policies from MCS
+     * @method
+     * @param {MCS~getAppPoliciesCallback} callback for getAppPolicies
      */
     this.getAppPolicies = function getAppPolicies(callback) {
 
@@ -805,21 +765,25 @@ function MCS(options) {
             }
         );
     };
-
+    /**
+     * @callback MCS~getAppPoliciesCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
 
 
     /**
      * Get Device Location List by Name
+     * @method
      * @param {object} options
      * @param {string} options.name
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result
+     * @param {MCS~getDeviceLocationsByNameCallback} callback for getDeviceLocationsByName
      *
      */
     this.getDeviceLocationsByName = function getDeviceLocationsByName(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('name').that.is.a("string");
 
         var optionsLocal = {};
         optionsLocal['key'] = 'name';
@@ -830,20 +794,24 @@ function MCS(options) {
         getLocationList(optionsLocal, callback);
 
     };
+    /**
+     * @callback MCS~getDeviceLocationsByNameCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
 
 
     /**
      * Get Device Location List by Id
+     * @method
      * @param {object} options
      * @param {string} options.id
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result
-     *
+     * @param {MCS~getDeviceLocationsByIdCallback} callback for getDeviceLocationsById
      */
     this.getDeviceLocationsById = function getDeviceLocationsById(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('id').that.is.a("string");
 
         var optionsLocal = {};
         optionsLocal['key'] = 'name';
@@ -854,20 +822,24 @@ function MCS(options) {
         getLocationList(optionsLocal, callback);
 
     };
+    /**
+     * @callback MCS~getDeviceLocationsByIdCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
 
 
     /**
      * Get Places List by Name
+     * @method
      * @param {object} options
      * @param {string} options.name
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result
-     *
+     * @param {MCS~getPlaceByNameCallback} callback for getPlaceByName
      */
     this.getPlaceByName = function getPlaceByName(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('name').that.is.a("string");
 
         var optionsLocal = {};
         optionsLocal['key'] = 'name';
@@ -878,20 +850,26 @@ function MCS(options) {
         getLocationList(optionsLocal, callback);
 
     };
+    /**
+     * @callback MCS~getPlaceByNameCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
+
 
 
     /**
-     * Get Places List by Id
+     * Get Places List by Id,
+     * @method
      * @param {object} options
      * @param {string} options.id
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result
+     * @param {MCS~getPlaceByIdCallback} callback for getPlaceById
      *
      */
     this.getPlaceById = function getPlaceById(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('id').that.is.a("string");
 
         var optionsLocal = {};
         optionsLocal['key'] = 'name';
@@ -902,20 +880,25 @@ function MCS(options) {
         getLocationList(optionsLocal, callback);
 
     };
+    /**
+     * @callback MCS~getPlaceByIdCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
 
 
     /**
      * Get Asset List by Name
+     * @method
      * @param {object} options
      * @param {string} options.name
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result
+     * @param {MCS~getAssetByNameCallback} callback for getAssetByName
      *
      */
     this.getAssetByName = function getAssetByName(options, callback) {
 
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('name').that.is.a("string");
 
         var optionsLocal = {};
         optionsLocal['key'] = 'name';
@@ -926,19 +909,25 @@ function MCS(options) {
         getLocationList(optionsLocal, callback);
 
     };
+    /**
+     * @callback MCS~getAssetByNameCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
 
 
     /**
      * Get Asset List by Id
+     * @method
      * @param {object} options
      * @param {string} options.id
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result
+     * @param {MCS~getAssetByIdCallback} callback for getAssetById
      *
      */
     this.getAssetById = function getAssetById(options, callback) {
+
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('id').that.is.a("string");
 
 
         var optionsLocal = {};
@@ -950,20 +939,23 @@ function MCS(options) {
         getLocationList(optionsLocal, callback);
 
     };
+    /**
+     * @callback MCS~getAssetByIdCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
 
 
     /**
      * Get Location List Base Function
+     * @method
      * @param {object} options
      * @param {string} options.key
      * @param {string} options.value
      * @param {string} options.pathStr
      * @param {string} options.isQuery
-     *
-     * @callback callback
-     * @param {string} err - Error
-     * @param {string} result
-     *
+     * @param {MCS~getLocationListCallback} callback for getLocationList
+     * 
      */
     function getLocationList(options, callback) {
 
@@ -973,7 +965,6 @@ function MCS(options) {
         var isQuery = options.isQuery;
 
         var url = baseUrl + '/mobile/platform/location/' + pathStr;
-
 
 
         if (isQuery) {
@@ -1010,7 +1001,11 @@ function MCS(options) {
             }
         );
     }
-
+    /**
+     * @callback MCS~getLocationListCallback
+     * @param {string} err - Error
+     * @param {string} result
+     */
 
 }
 

@@ -7,8 +7,9 @@ const Color = require('sf-core/ui/color');
 const TextAlignment = require('sf-core/ui/textalignment');
 const FlexLayout = require('sf-core/ui/flexlayout');
 const ActivityIndicator = require('sf-core/ui/activityindicator');
+const System = require('sf-core/device/system');
 
-var MCS;
+var mcs = require('../mcs');
 
 var usernameTextBox;
 var passwordTextBox;
@@ -69,15 +70,6 @@ const Page2 = extend(Page)(
 
         };
 
-
-
-        this.onShow = function(params) {
-
-            if (params)
-                MCS = params.MCS;
-
-        };
-
     }
 );
 
@@ -86,7 +78,7 @@ function loginButton_onPress() {
 
     loadingView.visible = true;
 
-    MCS.login({
+    mcs.login({
             'username': usernameTextBox.text,
             'password': passwordTextBox.text
         },
@@ -100,9 +92,7 @@ function loginButton_onPress() {
             }
 
 
-            Router.go('page3', {
-                'MCS': MCS
-            });
+            Router.go('page3');
         }
 
     );
@@ -128,7 +118,7 @@ var loadingViewCreator = function(id) {
         backgroundColor: Color.TRANSPARENT,
         touchEnabled: true
     });
-    if (Device.deviceOS != "Android") {
+    if (System.OS != "Android") {
         myActivityIndicator.flexGrow = 1;
     }
     loadingLayout.addChild(myActivityIndicator);

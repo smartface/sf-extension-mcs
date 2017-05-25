@@ -5,7 +5,7 @@ const extend = require("js-base/core/extend");
 const FlexLayout = require('sf-core/ui/flexlayout');
 const ActivityIndicator = require('sf-core/ui/activityindicator');
 const Color = require('sf-core/ui/color');
-
+const System = require('sf-core/device/system');
 var webView;
 var loadingView;
 
@@ -105,7 +105,7 @@ var loadingViewCreator = function(id) {
         backgroundColor: Color.TRANSPARENT,
         touchEnabled: true
     });
-    if (Device.deviceOS != "Android") {
+    if (System.OS != "Android") {
         myActivityIndicator.flexGrow = 1;
     }
     loadingLayout.addChild(myActivityIndicator);

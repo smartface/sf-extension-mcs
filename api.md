@@ -1,45 +1,3 @@
-## Classes
-
-<dl>
-<dt><a href="#MCS">MCS</a></dt>
-<dd></dd>
-</dl>
-
-## Typedefs
-
-<dl>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Custom Api Caller to MCS</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Custom Api Caller to MCS</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Get application policies from MCS</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Get Device Location List by Name</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Get Device Location List by Id</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Get Places List by Name</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Get Places List by Id</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Get Asset List by Name</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Get Asset List by Id</p>
-</dd>
-<dt><a href="#callback">callback</a> : <code>function</code></dt>
-<dd><p>Get Location List Base Function</p>
-</dd>
-</dl>
-
 <a name="MCS"></a>
 
 ## MCS
@@ -59,7 +17,15 @@
         * [.getItem(options, callback)](#MCS+getItem)
         * [.storeItem(options, callback)](#MCS+storeItem)
         * [.deleteItem(options, callback)](#MCS+deleteItem)
+        * [.getAppPolicies(callback)](#MCS+getAppPolicies)
+        * [.getDeviceLocationsByName(options, callback)](#MCS+getDeviceLocationsByName)
+        * [.getDeviceLocationsById(options, callback)](#MCS+getDeviceLocationsById)
+        * [.getPlaceByName(options, callback)](#MCS+getPlaceByName)
+        * [.getPlaceById(options, callback)](#MCS+getPlaceById)
+        * [.getAssetByName(options, callback)](#MCS+getAssetByName)
+        * [.getAssetById(options, callback)](#MCS+getAssetById)
     * _inner_
+        * [~getLocationList(options, callback)](#MCS..getLocationList)
         * [~loginCallback](#MCS..loginCallback) : <code>function</code>
         * [~registerDeviceTokenCallback](#MCS..registerDeviceTokenCallback) : <code>function</code>
         * [~deregisterDeviceTokenCallback](#MCS..deregisterDeviceTokenCallback) : <code>function</code>
@@ -70,6 +36,14 @@
         * [~getItemCallback](#MCS..getItemCallback) : <code>function</code>
         * [~storeItemCallback](#MCS..storeItemCallback) : <code>function</code>
         * [~deleteItemCallback](#MCS..deleteItemCallback) : <code>function</code>
+        * [~getAppPoliciesCallback](#MCS..getAppPoliciesCallback) : <code>function</code>
+        * [~getDeviceLocationsByNameCallback](#MCS..getDeviceLocationsByNameCallback) : <code>function</code>
+        * [~getDeviceLocationsByIdCallback](#MCS..getDeviceLocationsByIdCallback) : <code>function</code>
+        * [~getPlaceByNameCallback](#MCS..getPlaceByNameCallback) : <code>function</code>
+        * [~getPlaceByIdCallback](#MCS..getPlaceByIdCallback) : <code>function</code>
+        * [~getAssetByNameCallback](#MCS..getAssetByNameCallback) : <code>function</code>
+        * [~getAssetByIdCallback](#MCS..getAssetByIdCallback) : <code>function</code>
+        * [~getLocationListCallback](#MCS..getLocationListCallback) : <code>function</code>
 
 <a name="new_MCS_new"></a>
 
@@ -263,6 +237,111 @@ Delete item data from MCS
 | options.itemId | <code>string</code> | MCS item Id |
 | callback | [<code>deleteItemCallback</code>](#MCS..deleteItemCallback) | for deleteItem |
 
+<a name="MCS+getAppPolicies"></a>
+
+### mcS.getAppPolicies(callback)
+Get application policies from MCS
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callback | [<code>getAppPoliciesCallback</code>](#MCS..getAppPoliciesCallback) | for getAppPolicies |
+
+<a name="MCS+getDeviceLocationsByName"></a>
+
+### mcS.getDeviceLocationsByName(options, callback)
+Get Device Location List by Name
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> |  |
+| options.name | <code>string</code> |  |
+| callback | [<code>getDeviceLocationsByNameCallback</code>](#MCS..getDeviceLocationsByNameCallback) | for getDeviceLocationsByName |
+
+<a name="MCS+getDeviceLocationsById"></a>
+
+### mcS.getDeviceLocationsById(options, callback)
+Get Device Location List by Id
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> |  |
+| options.id | <code>string</code> |  |
+| callback | [<code>getDeviceLocationsByIdCallback</code>](#MCS..getDeviceLocationsByIdCallback) | for getDeviceLocationsById |
+
+<a name="MCS+getPlaceByName"></a>
+
+### mcS.getPlaceByName(options, callback)
+Get Places List by Name
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> |  |
+| options.name | <code>string</code> |  |
+| callback | [<code>getPlaceByNameCallback</code>](#MCS..getPlaceByNameCallback) | for getPlaceByName |
+
+<a name="MCS+getPlaceById"></a>
+
+### mcS.getPlaceById(options, callback)
+Get Places List by Id,
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> |  |
+| options.id | <code>string</code> |  |
+| callback | [<code>getPlaceByIdCallback</code>](#MCS..getPlaceByIdCallback) | for getPlaceById |
+
+<a name="MCS+getAssetByName"></a>
+
+### mcS.getAssetByName(options, callback)
+Get Asset List by Name
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> |  |
+| options.name | <code>string</code> |  |
+| callback | [<code>getAssetByNameCallback</code>](#MCS..getAssetByNameCallback) | for getAssetByName |
+
+<a name="MCS+getAssetById"></a>
+
+### mcS.getAssetById(options, callback)
+Get Asset List by Id
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> |  |
+| options.id | <code>string</code> |  |
+| callback | [<code>getAssetByIdCallback</code>](#MCS..getAssetByIdCallback) | for getAssetById |
+
+<a name="MCS..getLocationList"></a>
+
+### MCS~getLocationList(options, callback)
+Get Location List Base Function
+
+**Kind**: inner method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> |  |
+| options.key | <code>string</code> |  |
+| options.value | <code>string</code> |  |
+| options.pathStr | <code>string</code> |  |
+| options.isQuery | <code>string</code> |  |
+| callback | [<code>getLocationListCallback</code>](#MCS..getLocationListCallback) | for getLocationList |
+
 <a name="MCS..loginCallback"></a>
 
 ### MCS~loginCallback : <code>function</code>
@@ -407,153 +486,83 @@ result:
 | err | <code>string</code> | Error |
 | result | <code>string</code> | info message |
 
-<a name="callback"></a>
+<a name="MCS..getAppPoliciesCallback"></a>
 
-## callback : <code>function</code>
-Custom Api Caller to MCS
-
-**Kind**: global typedef  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>object</code> | api caller options |
-| options.apiName | <code>string</code> | MCS Custom Api name |
-| options.endpointName | <code>string</code> | MCS Custom Api endpoint name |
-| options.parameters | <code>array</code> | MCS query parameters array |
-| options.parameters.key | <code>string</code> | MCS query parameter name |
-| options.parameters.value | <code>string</code> | MCS query parameter value |
-| err | <code>string</code> | Error |
-| result | <code>string</code> | your web service result |
-
-<a name="callback"></a>
-
-## callback : <code>function</code>
-Custom Api Caller to MCS
-
-**Kind**: global typedef  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>object</code> | api caller options |
-| options.apiName | <code>string</code> | MCS Custom Api name |
-| options.endpointName | <code>string</code> | MCS Custom Api endpoint name |
-| options.body | <code>string</code> \| <code>object</code> | MCS Custom Api string or object body |
-| options.headerParameters | <code>array</code> | MCS header parameters array |
-| options.headerParameters.key | <code>string</code> | MCS header parameter name |
-| options.headerParameters.value | <code>string</code> | MCS header parameter value |
-| err | <code>string</code> | Error |
-| result | <code>string</code> | your web service result |
-
-<a name="callback"></a>
-
-## callback : <code>function</code>
-Get application policies from MCS
-
-**Kind**: global typedef  
+### MCS~getAppPoliciesCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | err | <code>string</code> | Error |
 | result | <code>string</code> |  |
 
-<a name="callback"></a>
+<a name="MCS..getDeviceLocationsByNameCallback"></a>
 
-## callback : <code>function</code>
-Get Device Location List by Name
-
-**Kind**: global typedef  
+### MCS~getDeviceLocationsByNameCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> |  |
-| options.name | <code>string</code> |  |
 | err | <code>string</code> | Error |
 | result | <code>string</code> |  |
 
-<a name="callback"></a>
+<a name="MCS..getDeviceLocationsByIdCallback"></a>
 
-## callback : <code>function</code>
-Get Device Location List by Id
-
-**Kind**: global typedef  
+### MCS~getDeviceLocationsByIdCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> |  |
-| options.id | <code>string</code> |  |
 | err | <code>string</code> | Error |
 | result | <code>string</code> |  |
 
-<a name="callback"></a>
+<a name="MCS..getPlaceByNameCallback"></a>
 
-## callback : <code>function</code>
-Get Places List by Name
-
-**Kind**: global typedef  
+### MCS~getPlaceByNameCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> |  |
-| options.name | <code>string</code> |  |
 | err | <code>string</code> | Error |
 | result | <code>string</code> |  |
 
-<a name="callback"></a>
+<a name="MCS..getPlaceByIdCallback"></a>
 
-## callback : <code>function</code>
-Get Places List by Id
-
-**Kind**: global typedef  
+### MCS~getPlaceByIdCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> |  |
-| options.id | <code>string</code> |  |
 | err | <code>string</code> | Error |
 | result | <code>string</code> |  |
 
-<a name="callback"></a>
+<a name="MCS..getAssetByNameCallback"></a>
 
-## callback : <code>function</code>
-Get Asset List by Name
-
-**Kind**: global typedef  
+### MCS~getAssetByNameCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> |  |
-| options.name | <code>string</code> |  |
 | err | <code>string</code> | Error |
 | result | <code>string</code> |  |
 
-<a name="callback"></a>
+<a name="MCS..getAssetByIdCallback"></a>
 
-## callback : <code>function</code>
-Get Asset List by Id
-
-**Kind**: global typedef  
+### MCS~getAssetByIdCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> |  |
-| options.id | <code>string</code> |  |
 | err | <code>string</code> | Error |
 | result | <code>string</code> |  |
 
-<a name="callback"></a>
+<a name="MCS..getLocationListCallback"></a>
 
-## callback : <code>function</code>
-Get Location List Base Function
-
-**Kind**: global typedef  
+### MCS~getLocationListCallback : <code>function</code>
+**Kind**: inner typedef of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> |  |
-| options.key | <code>string</code> |  |
-| options.value | <code>string</code> |  |
-| options.pathStr | <code>string</code> |  |
-| options.isQuery | <code>string</code> |  |
 | err | <code>string</code> | Error |
 | result | <code>string</code> |  |
 
