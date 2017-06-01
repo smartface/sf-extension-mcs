@@ -14,7 +14,7 @@ const ActivityIndicator = require('sf-core/ui/activityindicator');
 const System = require('sf-core/device/system');
 
 
-var mcs;
+var mcs = require('../mcs');
 var myListView;
 var fileArray;
 var self;

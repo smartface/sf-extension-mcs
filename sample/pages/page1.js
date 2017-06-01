@@ -6,10 +6,10 @@ const Color = require('sf-core/ui/color');
 const FlexLayout = require('sf-core/ui/flexlayout');
 const ActivityIndicator = require('sf-core/ui/activityindicator');
 const Http = require('sf-core/net/http');
+const System = require('sf-core/device/system');
 
 var mcs = require('../mcs');
 
-var loginSuccess = false;
 var loadingView;
 
 const Page1 = extend(Page)(
@@ -94,8 +94,6 @@ function mcsLogin() {
             }
 
             alert('Success ' + result);
-            loginSuccess = true;
-
         }
 
     );
@@ -104,18 +102,11 @@ function mcsLogin() {
 
 
 function mcsSendBasicAnalytic() {
-
-
-
-    if (loginSuccess == false) {
-        return alert("Login should be made first.");
-    }
-
     loadingView.visible = true;
 
     var optionsAnalytic = {
-        'deviceID': '112233',
-        'sessionID': '112233',
+        'deviceId': '112233',
+        'sessionId': '112233',
         'eventName': 'sendBasicEvent'
     };
 
@@ -133,16 +124,11 @@ function mcsSendBasicAnalytic() {
 }
 
 function mcsSendAnalytic() {
-
-    if (loginSuccess == false) {
-        return alert("Login should be made first.");
-    }
-
     loadingView.visible = true;
 
     var optionsAnalytic = {
-        'deviceID': '112233',
-        'sessionID': '112233',
+        'deviceId': '112233',
+        'sessionId': '112233',
         'body': [{
             "name": "testMCSEvent",
             "type": "custom",
@@ -164,11 +150,6 @@ function mcsSendAnalytic() {
 }
 
 function mcsRegister() {
-
-    if (loginSuccess == false) {
-        return alert("Login should be made first.");
-    }
-
     loadingView.visible = true;
 
     var optionsRegisterDevice = {
@@ -193,10 +174,6 @@ function mcsRegister() {
 
 function mcsDeregister() {
 
-    if (loginSuccess == false) {
-        return alert("Login should be made first.");
-    }
-
     loadingView.visible = true;
 
     var optionsRegisterDevice = {
@@ -219,21 +196,16 @@ function mcsDeregister() {
 }
 
 function mcsCreateRequest() {
-
-    if (loginSuccess == false) {
-        return alert("Login should be made first.");
-    }
-
     loadingView.visible = true;
 
     var options = {
         'apiName': 'weather',
         'endpointName': 'getCity',
     };
-    var requestOptions = mcs.apiCallerGetMethod(options);
-    var query = '?q=sanfrancisco&appid=caf032ca9a5364cb41ca768e3553d9b3';
-    
-    var url = requestOptions.url + '?' + query;
+    var requestOptions = mcs.createRequestOptions(options);
+    var query = 'q=sanfrancisco&appid=caf032ca9a5364cb41ca768e3553d9b3';
+
+    var url = requestOptions.url + query;
     var headers = requestOptions.headers;
     var body = '';
 
@@ -251,8 +223,9 @@ function mcsCreateRequest() {
             alert("mcsCreateRequest SUCC.  " + e.body.toString());
         },
         function(e) {
-
-            alert("mcsCreateRequest FAILED.  " + e);
+            if (e.statusCode == 403)
+                return alert("You need to login first");
+            alert("mcsCreateRequest FAILED.  " + (e.body && e.body.toString()));
         }
     );
 
@@ -283,7 +256,7 @@ var loadingViewCreator = function(id) {
         backgroundColor: Color.TRANSPARENT,
         touchEnabled: true
     });
-    if (Device.deviceOS != "Android") {
+    if (System.OS != "Android") {
         myActivityIndicator.flexGrow = 1;
     }
     loadingLayout.addChild(myActivityIndicator);
