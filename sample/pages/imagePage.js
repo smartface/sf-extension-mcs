@@ -66,7 +66,8 @@ const imagePage = extend(Page)(
                             loadingView.visible = false;
                             return alert("getItem FAILED.  " + err);
                         }
-                        
+                        if(typeof result === "object" && typeof result.body === "object")
+                            result = result.body.toString();
                         
                         var html = '<img src="data:image/png;base64, ' + result + '"/>';
                         webView.loadHTML(html);

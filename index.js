@@ -1,7 +1,7 @@
 const Notications = require("sf-core/notifications");
 const Http = require('sf-core/net/http');
 const System = require('sf-core/device/system');
-const expect = require('chai').expect
+const expect = require('chai').expect;
 const Base64_Helper = require("./base64");
 const Base64 = new Base64_Helper();
 
@@ -480,25 +480,7 @@ function MCS(options) {
                     callback(e.body.toString());
                 }
                 else {
-                    var resultArr = [];
-
-                    for (var i = 0; i < response.items.length; i++) {
-
-                        var arrayObject = {};
-
-                        arrayObject.id = response.items[i].id;
-                        arrayObject.name = response.items[i].name;
-                        arrayObject.contentType = response.items[i].contentType;
-                        arrayObject.createdBy = response.items[i].createdBy;
-                        arrayObject.createdOn = response.items[i].createdOn;
-                        arrayObject.modifiedBy = response.items[i].modiedBy;
-                        arrayObject.modifiedOn = response.items[i].modiedOn;
-
-                        resultArr.push(arrayObject);
-
-                    }
-
-                    callback(null, resultArr);
+                    callback(null, response.items);
                 }
 
             },
@@ -557,7 +539,7 @@ function MCS(options) {
             },
             function(e) {
 
-                callback(null, e.body.toString());
+                callback(null, e);
 
             },
             function(e) {
@@ -668,7 +650,6 @@ function MCS(options) {
 
         var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
         var headers = {
-            'Content-Type': 'application/json',
             'Oracle-Mobile-Backend-Id': backendID,
             'Authorization': authorization
         };
