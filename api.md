@@ -64,7 +64,7 @@ Creates new instace of MCS
 
 <a name="MCS+login"></a>
 
-### mcS.login(options, callback)
+### mcs.login(options, callback)
 login to MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -93,13 +93,13 @@ result:
 ```
 <a name="MCS+logout"></a>
 
-### mcS.logout()
+### mcs.logout()
 Logs out authenticated user, using Anonymous Key if provided
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
 <a name="MCS+registerDeviceToken"></a>
 
-### mcS.registerDeviceToken(options, callback)
+### mcs.registerDeviceToken(options, callback)
 Register device push notification token to MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -129,7 +129,7 @@ result:
 ```
 <a name="MCS+deregisterDeviceToken"></a>
 
-### mcS.deregisterDeviceToken(options, callback)
+### mcs.deregisterDeviceToken(options, callback)
 Deregister device push notification token from MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -142,7 +142,7 @@ Deregister device push notification token from MCS
 
 <a name="MCS+sendAnalytic"></a>
 
-### mcS.sendAnalytic(options, callback)
+### mcs.sendAnalytic(options, callback)
 Send Analytic Event to MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -158,7 +158,7 @@ Send Analytic Event to MCS
 
 <a name="MCS+sendBasicEvent"></a>
 
-### mcS.sendBasicEvent(options, callback)
+### mcs.sendBasicEvent(options, callback)
 Send Analytic Event to MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -173,7 +173,7 @@ Send Analytic Event to MCS
 
 <a name="MCS+getCollectionList"></a>
 
-### mcS.getCollectionList(callback)
+### mcs.getCollectionList(callback)
 Get all collections list from MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -184,7 +184,7 @@ Get all collections list from MCS
 
 <a name="MCS+getItemListInCollection"></a>
 
-### mcS.getItemListInCollection(options, callback)
+### mcs.getItemListInCollection(options, callback)
 Get item list in collection from MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -197,7 +197,7 @@ Get item list in collection from MCS
 
 <a name="MCS+getItem"></a>
 
-### mcS.getItem(options, callback)
+### mcs.getItem(options, callback)
 Get item data from MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -211,7 +211,7 @@ Get item data from MCS
 
 <a name="MCS+storeItem"></a>
 
-### mcS.storeItem(options, callback)
+### mcs.storeItem(options, callback)
 Store item to MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -227,7 +227,7 @@ Store item to MCS
 
 <a name="MCS+deleteItem"></a>
 
-### mcS.deleteItem(options, callback)
+### mcs.deleteItem(options, callback)
 Delete item data from MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -241,7 +241,7 @@ Delete item data from MCS
 
 <a name="MCS+createRequestOptions"></a>
 
-### mcS.createRequestOptions(options, callback)
+### mcs.createRequestOptions(options, callback)
 Create api request options for MCS Custom API
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -255,7 +255,7 @@ Create api request options for MCS Custom API
 
 <a name="MCS+getAppPolicies"></a>
 
-### mcS.getAppPolicies(callback)
+### mcs.getAppPolicies(callback)
 Get application policies from MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -266,7 +266,7 @@ Get application policies from MCS
 
 <a name="MCS+getDeviceLocationsByName"></a>
 
-### mcS.getDeviceLocationsByName(options, callback)
+### mcs.getDeviceLocationsByName(options, callback)
 Get Device Location List by Name
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -279,7 +279,7 @@ Get Device Location List by Name
 
 <a name="MCS+getDeviceLocationsById"></a>
 
-### mcS.getDeviceLocationsById(options, callback)
+### mcs.getDeviceLocationsById(options, callback)
 Get Device Location List by Id
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -292,7 +292,7 @@ Get Device Location List by Id
 
 <a name="MCS+getPlaceByName"></a>
 
-### mcS.getPlaceByName(options, callback)
+### mcs.getPlaceByName(options, callback)
 Get Places List by Name
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -305,7 +305,7 @@ Get Places List by Name
 
 <a name="MCS+getPlaceById"></a>
 
-### mcS.getPlaceById(options, callback)
+### mcs.getPlaceById(options, callback)
 Get Places List by Id,
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -318,7 +318,7 @@ Get Places List by Id,
 
 <a name="MCS+getAssetByName"></a>
 
-### mcS.getAssetByName(options, callback)
+### mcs.getAssetByName(options, callback)
 Get Asset List by Name
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -331,7 +331,7 @@ Get Asset List by Name
 
 <a name="MCS+getAssetById"></a>
 
-### mcS.getAssetById(options, callback)
+### mcs.getAssetById(options, callback)
 Get Asset List by Id
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  

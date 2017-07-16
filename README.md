@@ -45,7 +45,7 @@ function(err, result) {
 
 	alert("LOGIN SUCCESS.  " + result);	
 
-);
+});
 ```
 3) Send Basic Analytic Event (Example)
 ```javascript
