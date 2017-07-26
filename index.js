@@ -681,10 +681,10 @@ function MCS(options) {
     /**
      * Create api request options for MCS Custom API
      * @method
-     * @param {object} options - Analytic options
+     * @param {object} options - Request options
      * @param {string} options.apiName - MCS Api Name
      * @param {string} options.endpointName - MCS Endpoint Name
-     * @param {MCS~createRequestOptionsCallback} callback for createRequestOptions
+     * @return {object} httpRequestOption to be used in Smartface request
      */
     this.createRequestOptions = function createRequestOptions(options) {
         expect(options).to.be.a('object');

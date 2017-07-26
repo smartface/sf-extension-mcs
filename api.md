@@ -17,7 +17,7 @@
         * [.getItem(options, callback)](#MCS+getItem)
         * [.storeItem(options, callback)](#MCS+storeItem)
         * [.deleteItem(options, callback)](#MCS+deleteItem)
-        * [.createRequestOptions(options, callback)](#MCS+createRequestOptions)
+        * [.createRequestOptions(options)](#MCS+createRequestOptions) ⇒ <code>object</code>
         * [.getAppPolicies(callback)](#MCS+getAppPolicies)
         * [.getDeviceLocationsByName(options, callback)](#MCS+getDeviceLocationsByName)
         * [.getDeviceLocationsById(options, callback)](#MCS+getDeviceLocationsById)
@@ -241,17 +241,17 @@ Delete item data from MCS
 
 <a name="MCS+createRequestOptions"></a>
 
-### mcs.createRequestOptions(options, callback)
+### mcs.createRequestOptions(options) ⇒ <code>object</code>
 Create api request options for MCS Custom API
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
+**Returns**: <code>object</code> - httpRequestOption to be used in Smartface request  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> | Analytic options |
+| options | <code>object</code> | Request options |
 | options.apiName | <code>string</code> | MCS Api Name |
 | options.endpointName | <code>string</code> | MCS Endpoint Name |
-| callback | [<code>createRequestOptionsCallback</code>](#MCS..createRequestOptionsCallback) | for createRequestOptions |
 
 <a name="MCS+getAppPolicies"></a>
 
