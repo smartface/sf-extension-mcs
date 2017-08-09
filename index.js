@@ -648,7 +648,8 @@ function MCS(options) {
         var collectionId = options.collectionId;
         var itemId = options.itemId;
 
-        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
+        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId +
+            "?v=" + Math.floor(Math.random() * 100000); //added due to the SUPDEV-470 workaround
         var headers = {
             'Oracle-Mobile-Backend-Id': backendID,
             'Authorization': authorization
@@ -706,13 +707,13 @@ function MCS(options) {
         };
 
     };
-     /**
+    /**
      * @callback MCS~createRequestOptionsCallback
      * @param {string} err - Error
      * @param {string} result
      */
-     
-    
+
+
     /**
      * Get application policies from MCS
      * @method
