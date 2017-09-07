@@ -1,5 +1,6 @@
 const Notications = require("sf-core/notifications");
-const Http = require('sf-core/net/http');
+const http = require('sf-core/net/http');
+const Http = new http();
 const System = require('sf-core/device/system');
 const expect = require('chai').expect;
 const Base64_Helper = require("./base64");
@@ -68,30 +69,28 @@ function MCS(options) {
         };
         var body = '';
 
-
         Http.request({
                 'url': url,
                 'headers': headers,
                 'method': 'GET',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
 
-            },
-            function(e) {
+                    authorization = 'Basic ' + Base64.encode(username + ':' + password);
 
-                authorization = 'Basic ' + Base64.encode(username + ':' + password);
+                    var response = JSON.parse(e.body.toString());
 
-                var response = JSON.parse(e.body.toString());
+                    if (response.id == null) {
+                        callback(e.body.toString());
+                    }
+                    else {
+                        callback(null, e.body.toString());
+                    }
 
-                if (response.id == null) {
-                    callback(e.body.toString());
+                },
+                'onError': function(e) {
+                    callback(e);
                 }
-                else {
-                    callback(null, e.body.toString());
-                }
-
-            },
-            function(e) {
-                callback(e);
             }
         );
     };
@@ -172,23 +171,22 @@ function MCS(options) {
                         'url': url,
                         'headers': headers,
                         'method': 'POST',
-                        'body': JSON.stringify(body, null, '\t')
+                        'body': JSON.stringify(body, null, '\t'),
+                        'onLoad': function(e) {
 
-                    },
-                    function(e) {
+                            var response = JSON.parse(e.body.toString());
 
-                        var response = JSON.parse(e.body.toString());
+                            if (response.id == null) {
+                                callback(e.body.toString());
+                            }
+                            else {
+                                callback(null, e.body.toString());
+                            }
 
-                        if (response.id == null) {
-                            callback(e.body.toString());
+                        },
+                        'onError': function(e) {
+                            callback(e);
                         }
-                        else {
-                            callback(null, e.body.toString());
-                        }
-
-                    },
-                    function(e) {
-                        callback(e);
                     }
                 );
 
@@ -248,15 +246,14 @@ function MCS(options) {
                         'url': url,
                         'headers': headers,
                         'method': 'POST',
-                        'body': JSON.stringify(body, null, '\t')
+                        'body': JSON.stringify(body, null, '\t'),
+                        'onLoad': function(e) {
 
-                    },
-                    function(e) {
-
-                        callback(null, 'Device Deleted.');
-                    },
-                    function(e) {
-                        callback(e);
+                            callback(null, 'Device Deleted.');
+                        },
+                        'onError': function(e) {
+                            callback(e);
+                        }
                     }
                 );
 
@@ -312,24 +309,24 @@ function MCS(options) {
                 'url': url,
                 'headers': headers,
                 'method': 'POST',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
 
-            },
-            function(e) {
+                    var response = JSON.parse(e.body.toString());
 
-                var response = JSON.parse(e.body.toString());
+                    if (response.message == null) {
+                        callback(e.body.toString());
+                    }
+                    else {
+                        callback(null, e.body.toString());
+                    }
 
-                if (response.message == null) {
-                    callback(e.body.toString());
+                },
+                'onError': function(e) {
+                    alert("Error " + e);
+                    callback(e);
                 }
-                else {
-                    callback(null, e.body.toString());
-                }
 
-            },
-            function(e) {
-                alert("Error " + e);
-                callback(e);
             }
         );
     };
@@ -399,35 +396,35 @@ function MCS(options) {
                 'url': url,
                 'headers': headers,
                 'method': 'GET',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
 
-            },
-            function(e) {
+                    var response = JSON.parse(e.body.toString());
 
-                var response = JSON.parse(e.body.toString());
+                    if (response.items == null) {
+                        callback(e.body.toString());
+                    }
+                    else {
+                        var resultArr = [];
+                        for (var i = 0; i < response.items.length; i++) {
 
-                if (response.items == null) {
-                    callback(e.body.toString());
-                }
-                else {
-                    var resultArr = [];
-                    for (var i = 0; i < response.items.length; i++) {
+                            var arrayObject = {};
 
-                        var arrayObject = {};
+                            arrayObject.id = response.items[i].id;
+                            arrayObject.description = response.items[i].description;
 
-                        arrayObject.id = response.items[i].id;
-                        arrayObject.description = response.items[i].description;
+                            resultArr.push(arrayObject);
 
-                        resultArr.push(arrayObject);
+                        }
 
+                        callback(null, resultArr);
                     }
 
-                    callback(null, resultArr);
+                },
+                'onError': function(e) {
+                    callback(e);
                 }
 
-            },
-            function(e) {
-                callback(e);
             }
         );
     };
@@ -469,23 +466,22 @@ function MCS(options) {
                 'url': url,
                 'headers': headers,
                 'method': 'GET',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
 
-            },
-            function(e) {
+                    var response = JSON.parse(e.body.toString());
 
-                var response = JSON.parse(e.body.toString());
+                    if (response.items == null) {
+                        callback(e.body.toString());
+                    }
+                    else {
+                        callback(null, response.items);
+                    }
 
-                if (response.items == null) {
-                    callback(e.body.toString());
+                },
+                'onError': function(e) {
+                    callback(e);
                 }
-                else {
-                    callback(null, response.items);
-                }
-
-            },
-            function(e) {
-                callback(e);
             }
         );
     };
@@ -534,17 +530,18 @@ function MCS(options) {
                 'url': url,
                 'headers': headers,
                 'method': 'GET',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
 
-            },
-            function(e) {
+                    callback(null, e);
 
-                callback(null, e);
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
 
-            },
-            function(e) {
-                callback(e);
             }
+            
         );
     };
     /**
@@ -590,16 +587,16 @@ function MCS(options) {
                 'url': url,
                 'headers': headers,
                 'method': 'POST',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
 
-            },
-            function(e) {
+                    callback(null, e.body.toString());
 
-                callback(null, e.body.toString());
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
 
-            },
-            function(e) {
-                callback(e);
             }
         );
     };
@@ -660,16 +657,16 @@ function MCS(options) {
                 'url': url,
                 'headers': headers,
                 'method': 'DELETE',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
 
-            },
-            function(e) {
+                    callback(null, 'Item Deleted.');
 
-                callback(null, 'Item Deleted.');
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
 
-            },
-            function(e) {
-                callback(e);
             }
         );
     };
@@ -734,16 +731,16 @@ function MCS(options) {
                 'url': url,
                 'headers': headers,
                 'method': 'GET',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
 
-            },
-            function(e) {
+                    callback(null, e.body.toString());
 
-                callback(null, e.body.toString());
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
 
-            },
-            function(e) {
-                callback(e);
             }
         );
     };
@@ -970,16 +967,16 @@ function MCS(options) {
                 'url': url,
                 'headers': headers,
                 'method': 'GET',
-                'body': body
+                'body': body,
+                'onLoad': function(e) {
+    
+                    callback(null, e.body.toString());
+    
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
 
-            },
-            function(e) {
-
-                callback(null, e.body.toString());
-
-            },
-            function(e) {
-                callback(e);
             }
         );
     }
