@@ -213,19 +213,19 @@ function mcsCreateRequest() {
             'url': url,
             'headers': headers,
             'method': 'GET',
-            'body': body
+            'body': body,
+            'onLoad': function(e) {
 
-        },
-        function(e) {
+                loadingView.visible = false;
 
-            loadingView.visible = false;
+                alert("mcsCreateRequest SUCC.  " + e.body.toString());
+            },
+            'onError': function(e) {
+                if (e.statusCode == 403)
+                    return alert("You need to login first");
+                alert("mcsCreateRequest FAILED.  " + (e.body && e.body.toString()));
+            }
 
-            alert("mcsCreateRequest SUCC.  " + e.body.toString());
-        },
-        function(e) {
-            if (e.statusCode == 403)
-                return alert("You need to login first");
-            alert("mcsCreateRequest FAILED.  " + (e.body && e.body.toString()));
         }
     );
 
