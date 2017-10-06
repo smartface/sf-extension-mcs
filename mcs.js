@@ -681,21 +681,25 @@ function MCS(options) {
      * @method
      * @param {object} options - Request options
      * @param {string} options.apiName - MCS Api Name
-     * @param {string} options.endpointName - MCS Endpoint Name
+     * @param {string} options.endpointPath - MCS Endpoint path
+     * @param {string} [options.version = "1.0"] - API version, by default 1.0
      * @return {object} httpRequestOption to be used in Smartface request
      */
     this.createRequestOptions = function createRequestOptions(options) {
         expect(options).to.be.a('object');
         expect(options).to.have.property('apiName').that.is.a('string');
-        expect(options).to.have.property('endpointName').that.is.a('string');
-
+        expect(options).to.have.property('endpointPath').that.is.a('string');
+        options.version && expect(options).to.have.property('version').that.is.a('string');
+        
+        var version = options.version || "1.0";
         var apiName = options.apiName;
         var endpointName = options.endpointName;
-        var urlBase = baseUrl + '/mobile/custom/' + apiName + '/' + endpointName + '?';
+        var urlBase = baseUrl + '/mobile/custom/' + apiName + '/' + endpointName;
         var headersBase = {
             'Content-Type': 'application/json',
             'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization
+            'Authorization': authorization,
+            'oracle-mobile-api-version': version
         };
 
         return {
