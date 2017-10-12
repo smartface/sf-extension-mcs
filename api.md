@@ -11,7 +11,9 @@
         * [.registerDeviceToken(options, callback)](#MCS+registerDeviceToken)
         * [.deregisterDeviceToken(options, callback)](#MCS+deregisterDeviceToken)
         * [.sendAnalytic(options, callback)](#MCS+sendAnalytic)
-        * [.sendBasicEvent(options, callback)](#MCS+sendBasicEvent)
+        * [.sendBasicEvent(eventName, callback)](#MCS+sendBasicEvent)
+        * [.storeBasicEvent(eventName)](#MCS+storeBasicEvent)
+        * [.flushEvents(callback)](#MCS+flushEvents)
         * [.getCollectionList(callback)](#MCS+getCollectionList)
         * [.getItemListInCollection(options, callback)](#MCS+getItemListInCollection)
         * [.getItem(options, callback)](#MCS+getItem)
@@ -151,24 +153,43 @@ Send Analytic Event to MCS
 | Param | Type | Description |
 | --- | --- | --- |
 | options | <code>object</code> | Analytic options |
-| options.deviceId | <code>string</code> | Specific Device ID |
-| options.sessionId | <code>string</code> | Session ID |
+| [options.deviceId] | <code>string</code> | can override what is set by the mcs lib |
+| [options.sessionId] | <code>string</code> | can override what is set by the mcs lib |
 | options.body | <code>object</code> | Event json array |
 | callback | [<code>sendAnalyticCallback</code>](#MCS..sendAnalyticCallback) | for sendAnalytic |
 
 <a name="MCS+sendBasicEvent"></a>
 
-### mcs.sendBasicEvent(options, callback)
+### mcs.sendBasicEvent(eventName, callback)
 Send Analytic Event to MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>object</code> | Analytic options |
-| options.deviceId | <code>string</code> | Specific Device ID |
-| options.sessionId | <code>string</code> | Session ID |
-| options.eventName | <code>object</code> | Event name |
+| eventName | <code>string</code> | Event name |
+| callback | [<code>sendBasicEventCallback</code>](#MCS..sendBasicEventCallback) | for sendBasicEvent |
+
+<a name="MCS+storeBasicEvent"></a>
+
+### mcs.storeBasicEvent(eventName)
+stores basic events to be sent later. Similar to sendBasicEvent
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type |
+| --- | --- |
+| eventName | <code>string</code> | 
+
+<a name="MCS+flushEvents"></a>
+
+### mcs.flushEvents(callback)
+Sends stored events
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
 | callback | [<code>sendBasicEventCallback</code>](#MCS..sendBasicEventCallback) | for sendBasicEvent |
 
 <a name="MCS+getCollectionList"></a>
@@ -247,11 +268,12 @@ Create api request options for MCS Custom API
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
 **Returns**: <code>object</code> - httpRequestOption to be used in Smartface request  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>object</code> | Request options |
-| options.apiName | <code>string</code> | MCS Api Name |
-| options.endpointName | <code>string</code> | MCS Endpoint Name |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| options | <code>object</code> |  | Request options |
+| options.apiName | <code>string</code> |  | MCS Api Name |
+| options.endpointPath | <code>string</code> |  | MCS Endpoint path |
+| [options.version] | <code>string</code> | <code>&quot;\&quot;1.0\&quot;&quot;</code> | API version, by default 1.0 |
 
 <a name="MCS+getAppPolicies"></a>
 

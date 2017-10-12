@@ -5,7 +5,14 @@ const System = require('sf-core/device/system');
 const expect = require('chai').expect;
 const Base64_Helper = require("./base64");
 const Base64 = new Base64_Helper();
+const Data = require('sf-core/data');
+const deviceId = Data.getStringVariable("mcs-deviceId") || (function() {
+    var id = uuid();
+    Data.setStringVariable("mcs-deviceId", id);
+    return id;
+})();
 
+const sessionId = uuid();
 /**
  * Creates new instace of MCS
  * @class
@@ -30,6 +37,7 @@ function MCS(options) {
     var authorization = anonymousKey ? "Basic " + anonymousKey : "";
     var androidApplicationKey = options.androidApplicationKey;
     var iOSApplicationKey = options.iOSApplicationKey;
+    const eventStore = [];
 
     /**
      * login to MCS
@@ -70,29 +78,28 @@ function MCS(options) {
         var body = '';
 
         Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'GET',
-                'body': body,
-                'onLoad': function(e) {
+            'url': url,
+            'headers': headers,
+            'method': 'GET',
+            'body': body,
+            'onLoad': function(e) {
 
-                    authorization = 'Basic ' + Base64.encode(username + ':' + password);
+                authorization = 'Basic ' + Base64.encode(username + ':' + password);
 
-                    var response = JSON.parse(e.body.toString());
+                var response = JSON.parse(e.body.toString());
 
-                    if (response.id == null) {
-                        callback(e.body.toString());
-                    }
-                    else {
-                        callback(null, e.body.toString());
-                    }
-
-                },
-                'onError': function(e) {
-                    callback(e);
+                if (response.id == null) {
+                    callback(e.body.toString());
                 }
+                else {
+                    callback(null, e.body.toString());
+                }
+
+            },
+            'onError': function(e) {
+                callback(e);
             }
-        );
+        });
     };
 
     /**
@@ -168,27 +175,26 @@ function MCS(options) {
                 };
 
                 Http.request({
-                        'url': url,
-                        'headers': headers,
-                        'method': 'POST',
-                        'body': JSON.stringify(body, null, '\t'),
-                        'onLoad': function(e) {
+                    'url': url,
+                    'headers': headers,
+                    'method': 'POST',
+                    'body': JSON.stringify(body, null, '\t'),
+                    'onLoad': function(e) {
 
-                            var response = JSON.parse(e.body.toString());
+                        var response = JSON.parse(e.body.toString());
 
-                            if (response.id == null) {
-                                callback(e.body.toString());
-                            }
-                            else {
-                                callback(null, e.body.toString());
-                            }
-
-                        },
-                        'onError': function(e) {
-                            callback(e);
+                        if (response.id == null) {
+                            callback(e.body.toString());
                         }
+                        else {
+                            callback(null, e.body.toString());
+                        }
+
+                    },
+                    'onError': function(e) {
+                        callback(e);
                     }
-                );
+                });
 
             },
             function() {
@@ -243,19 +249,18 @@ function MCS(options) {
 
 
                 Http.request({
-                        'url': url,
-                        'headers': headers,
-                        'method': 'POST',
-                        'body': JSON.stringify(body, null, '\t'),
-                        'onLoad': function(e) {
+                    'url': url,
+                    'headers': headers,
+                    'method': 'POST',
+                    'body': JSON.stringify(body, null, '\t'),
+                    'onLoad': function(e) {
 
-                            callback(null, 'Device Deleted.');
-                        },
-                        'onError': function(e) {
-                            callback(e);
-                        }
+                        callback(null, 'Device Deleted.');
+                    },
+                    'onError': function(e) {
+                        callback(e);
                     }
-                );
+                });
 
             },
             function() {
@@ -274,19 +279,17 @@ function MCS(options) {
      * @see {@link https://docs.oracle.com/en/cloud/paas/mobile-cloud/mcsra/op-mobile-platform-analytics-events-post.html Oracle Docs}
      * @method
      * @param {object} options - Analytic options
-     * @param {string} options.deviceId - Specific Device ID
-     * @param {string} options.sessionId - Session ID
+     * @param {string} [options.deviceId] - can override what is set by the mcs lib
+     * @param {string} [options.sessionId] - can override what is set by the mcs lib
      * @param {object} options.body - Event json array
      * @param {MCS~sendAnalyticCallback} callback for sendAnalytic
      */
     this.sendAnalytic = function sendAnalytic(options, callback) {
 
         expect(options).to.be.a('object');
-        expect(options).to.have.property('deviceId').that.is.a('string');
-        expect(options).to.have.property('sessionId').that.is.a('string');
 
-        var deviceID = options.deviceId;
-        var sessionID = options.sessionId;
+        var deviceID = options.deviceId || deviceId;
+        var sessionID = options.sessionId || sessionId;
         var jsonBody = options.body;
         var applicationKey = (System.OS == 'iOS') ? iOSApplicationKey : androidApplicationKey;
         expect(applicationKey).to.be.a('string');
@@ -306,29 +309,28 @@ function MCS(options) {
         var body = jsonBody;
 
         Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'POST',
-                'body': body,
-                'onLoad': function(e) {
+            'url': url,
+            'headers': headers,
+            'method': 'POST',
+            'body': body,
+            'onLoad': function(e) {
 
-                    var response = JSON.parse(e.body.toString());
+                var response = JSON.parse(e.body.toString());
 
-                    if (response.message == null) {
-                        callback(e.body.toString());
-                    }
-                    else {
-                        callback(null, e.body.toString());
-                    }
-
-                },
-                'onError': function(e) {
-                    alert("Error " + e);
-                    callback(e);
+                if (response.message == null) {
+                    callback(e.body.toString());
+                }
+                else {
+                    callback(null, e.body.toString());
                 }
 
+            },
+            'onError': function(e) {
+                alert("Error " + e);
+                callback(e);
             }
-        );
+
+        });
     };
     /**
      * @callback MCS~sendAnalyticCallback
@@ -341,18 +343,12 @@ function MCS(options) {
     /**
      * Send Analytic Event to MCS
      * @method
-     * @param {object} options - Analytic options
-     * @param {string} options.deviceId - Specific Device ID
-     * @param {string} options.sessionId - Session ID
-     * @param {object} options.eventName - Event name
+     * @param {string} eventName - Event name
      * @param {MCS~sendBasicEventCallback} callback for sendBasicEvent
      */
-    this.sendBasicEvent = function sendBasicEvent(options, callback) {
+    this.sendBasicEvent = function sendBasicEvent(eventName, callback) {
 
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('eventName').that.is.a('string');
-
-        var eventName = options.eventName;
+        expect(eventName).to.be.a('string');
 
         var body = [{
             "name": eventName,
@@ -365,6 +361,37 @@ function MCS(options) {
         self.sendAnalytic(options, callback);
 
     };
+    /**
+     * stores basic events to be sent later. Similar to sendBasicEvent
+     * @param {string} eventName
+     */
+    this.storeBasicEvent = function storeBasicEvent(eventName) {
+        expect(eventName).to.be.a('string');
+        eventStore.push({
+            "name": eventName,
+            "type": "custom",
+            "timestamp": new Date().toISOString()
+        });
+    };
+
+    /**
+     * Sends stored events
+     * @param {MCS~sendBasicEventCallback} callback for sendBasicEvent
+     */
+    this.flushEvents = function flushEvents(callback) {
+        var eventCache = eventStore.slice();
+        eventStore.length = 0;
+
+        this.sendAnalytic({ body: eventCache }, (err, result) => {
+            if(err) {
+                Array.prototype.unshift.apply(eventStore, eventCache);
+            }
+            callback(err, result);
+        });
+    };
+
+
+
     /**
      * @callback MCS~sendBasicEventCallback
      * @param {string} err - Error
@@ -393,40 +420,39 @@ function MCS(options) {
 
 
         Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'GET',
-                'body': body,
-                'onLoad': function(e) {
+            'url': url,
+            'headers': headers,
+            'method': 'GET',
+            'body': body,
+            'onLoad': function(e) {
 
-                    var response = JSON.parse(e.body.toString());
+                var response = JSON.parse(e.body.toString());
 
-                    if (response.items == null) {
-                        callback(e.body.toString());
-                    }
-                    else {
-                        var resultArr = [];
-                        for (var i = 0; i < response.items.length; i++) {
+                if (response.items == null) {
+                    callback(e.body.toString());
+                }
+                else {
+                    var resultArr = [];
+                    for (var i = 0; i < response.items.length; i++) {
 
-                            var arrayObject = {};
+                        var arrayObject = {};
 
-                            arrayObject.id = response.items[i].id;
-                            arrayObject.description = response.items[i].description;
+                        arrayObject.id = response.items[i].id;
+                        arrayObject.description = response.items[i].description;
 
-                            resultArr.push(arrayObject);
+                        resultArr.push(arrayObject);
 
-                        }
-
-                        callback(null, resultArr);
                     }
 
-                },
-                'onError': function(e) {
-                    callback(e);
+                    callback(null, resultArr);
                 }
 
+            },
+            'onError': function(e) {
+                callback(e);
             }
-        );
+
+        });
     };
     /**
      * @callback MCS~getCollectionListCallback
@@ -463,27 +489,26 @@ function MCS(options) {
 
 
         Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'GET',
-                'body': body,
-                'onLoad': function(e) {
+            'url': url,
+            'headers': headers,
+            'method': 'GET',
+            'body': body,
+            'onLoad': function(e) {
 
-                    var response = JSON.parse(e.body.toString());
+                var response = JSON.parse(e.body.toString());
 
-                    if (response.items == null) {
-                        callback(e.body.toString());
-                    }
-                    else {
-                        callback(null, response.items);
-                    }
-
-                },
-                'onError': function(e) {
-                    callback(e);
+                if (response.items == null) {
+                    callback(e.body.toString());
                 }
+                else {
+                    callback(null, response.items);
+                }
+
+            },
+            'onError': function(e) {
+                callback(e);
             }
-        );
+        });
     };
     /**
      * @callback MCS~getItemListInCollectionCallback
@@ -541,7 +566,7 @@ function MCS(options) {
                 }
 
             }
-            
+
         );
     };
     /**
@@ -584,21 +609,20 @@ function MCS(options) {
         var body = base64EncodeData;
 
         Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'POST',
-                'body': body,
-                'onLoad': function(e) {
+            'url': url,
+            'headers': headers,
+            'method': 'POST',
+            'body': body,
+            'onLoad': function(e) {
 
-                    callback(null, e.body.toString());
+                callback(null, e.body.toString());
 
-                },
-                'onError': function(e) {
-                    callback(e);
-                }
-
+            },
+            'onError': function(e) {
+                callback(e);
             }
-        );
+
+        });
     };
     /**
      * @callback MCS~storeItemCallback
@@ -654,21 +678,20 @@ function MCS(options) {
         var body = '';
 
         Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'DELETE',
-                'body': body,
-                'onLoad': function(e) {
+            'url': url,
+            'headers': headers,
+            'method': 'DELETE',
+            'body': body,
+            'onLoad': function(e) {
 
-                    callback(null, 'Item Deleted.');
+                callback(null, 'Item Deleted.');
 
-                },
-                'onError': function(e) {
-                    callback(e);
-                }
-
+            },
+            'onError': function(e) {
+                callback(e);
             }
-        );
+
+        });
     };
     /**
      * @callback MCS~deleteItemCallback
@@ -690,7 +713,7 @@ function MCS(options) {
         expect(options).to.have.property('apiName').that.is.a('string');
         expect(options).to.have.property('endpointPath').that.is.a('string');
         options.version && expect(options).to.have.property('version').that.is.a('string');
-        
+
         var version = options.version || "1.0";
         var apiName = options.apiName;
         var endpointName = options.endpointName;
@@ -732,21 +755,20 @@ function MCS(options) {
         var body = '';
 
         Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'GET',
-                'body': body,
-                'onLoad': function(e) {
+            'url': url,
+            'headers': headers,
+            'method': 'GET',
+            'body': body,
+            'onLoad': function(e) {
 
-                    callback(null, e.body.toString());
+                callback(null, e.body.toString());
 
-                },
-                'onError': function(e) {
-                    callback(e);
-                }
-
+            },
+            'onError': function(e) {
+                callback(e);
             }
-        );
+
+        });
     };
     /**
      * @callback MCS~getAppPoliciesCallback
@@ -968,21 +990,20 @@ function MCS(options) {
         var body = '';
 
         Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'GET',
-                'body': body,
-                'onLoad': function(e) {
-    
-                    callback(null, e.body.toString());
-    
-                },
-                'onError': function(e) {
-                    callback(e);
-                }
+            'url': url,
+            'headers': headers,
+            'method': 'GET',
+            'body': body,
+            'onLoad': function(e) {
 
+                callback(null, e.body.toString());
+
+            },
+            'onError': function(e) {
+                callback(e);
             }
-        );
+
+        });
     }
     /**
      * @callback MCS~getLocationListCallback
@@ -994,3 +1015,11 @@ function MCS(options) {
 
 
 module.exports = MCS;
+
+function uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
