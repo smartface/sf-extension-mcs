@@ -282,7 +282,7 @@ function MCS(options) {
      * @param {string} [options.deviceId] - can override what is set by the mcs lib
      * @param {string} [options.sessionId] - can override what is set by the mcs lib
      * @param {object} options.body - Event json array
-     * @param {MCS~sendAnalyticCallback} callback for sendAnalytic
+     * @param {MCS~sendAnalyticCallback} [callback] for sendAnalytic
      */
     this.sendAnalytic = function sendAnalytic(options, callback) {
 
@@ -318,16 +318,16 @@ function MCS(options) {
                 var response = JSON.parse(e.body.toString());
 
                 if (response.message == null) {
-                    callback(e.body.toString());
+                    callback && callback(e.body.toString());
                 }
                 else {
-                    callback(null, e.body.toString());
+                    callback && callback(null, e.body.toString());
                 }
 
             },
             'onError': function(e) {
                 alert("Error " + e);
-                callback(e);
+                callback && callback(e);
             }
 
         });
@@ -344,7 +344,7 @@ function MCS(options) {
      * Send Analytic Event to MCS
      * @method
      * @param {string} eventName - Event name
-     * @param {MCS~sendBasicEventCallback} callback for sendBasicEvent
+     * @param {MCS~sendBasicEventCallback} [callback] for sendBasicEvent
      */
     this.sendBasicEvent = function sendBasicEvent(eventName, callback) {
 
@@ -376,7 +376,7 @@ function MCS(options) {
 
     /**
      * Sends stored events
-     * @param {MCS~sendBasicEventCallback} callback for sendBasicEvent
+     * @param {MCS~sendBasicEventCallback} [callback] for sendBasicEvent
      */
     this.flushEvents = function flushEvents(callback) {
         if (eventStore.length > 0) {
@@ -387,11 +387,11 @@ function MCS(options) {
                 if (err) {
                     Array.prototype.unshift.apply(eventStore, eventCache);
                 }
-                callback(err, result);
+                callback && callback(err, result);
             });
         }
         else {
-            callback();
+            callback && callback();
         }
     };
 
