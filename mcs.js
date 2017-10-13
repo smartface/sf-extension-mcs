@@ -379,15 +379,20 @@ function MCS(options) {
      * @param {MCS~sendBasicEventCallback} callback for sendBasicEvent
      */
     this.flushEvents = function flushEvents(callback) {
-        var eventCache = eventStore.slice();
-        eventStore.length = 0;
+        if (eventStore.length > 0) {
+            var eventCache = eventStore.slice();
+            eventStore.length = 0;
 
-        this.sendAnalytic({ body: eventCache }, (err, result) => {
-            if(err) {
-                Array.prototype.unshift.apply(eventStore, eventCache);
-            }
-            callback(err, result);
-        });
+            this.sendAnalytic({ body: eventCache }, (err, result) => {
+                if (err) {
+                    Array.prototype.unshift.apply(eventStore, eventCache);
+                }
+                callback(err, result);
+            });
+        }
+        else {
+            callback();
+        }
     };
 
 
