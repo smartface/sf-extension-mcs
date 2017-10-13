@@ -23,7 +23,8 @@
   "homepage": "https://bitbucket.org/smartface-team/sf-extension-mcs#readme",
   "devDependencies": {},
   "readmeFilename": "README.md",
-  "dependencies": {
-    "chai": "^3.5.0"
+  "peerDependencies": {
+    "chai": "^3.5.0",
+    "sf-extension-utils": "^1.1.9"
   }
 }

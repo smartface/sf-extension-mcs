@@ -13,6 +13,9 @@ const deviceId = Data.getStringVariable("mcs-deviceId") || (function() {
 })();
 
 const sessionId = uuid();
+
+require("sf-extension-utils/lib/base/timers"); //corrects setTimeout & setInterval
+
 /**
  * Creates new instace of MCS
  * @class
@@ -38,6 +41,7 @@ function MCS(options) {
     var androidApplicationKey = options.androidApplicationKey;
     var iOSApplicationKey = options.iOSApplicationKey;
     const eventStore = [];
+    var autoFlushEventsTimerId;
 
     /**
      * login to MCS
@@ -394,6 +398,27 @@ function MCS(options) {
             callback && callback();
         }
     };
+
+    this.startAutoFlushEvents = function startAutoFlushEvents(period = 15000) {
+        autoFlushEventsTimerId = setInterval(() => {
+            this.flushEvents();
+        }, period);
+    };
+
+    this.stopAutoFlushEvents = function stopAutoFlushEvents() {
+        if (!autoFlushEventsTimerId)
+            return;
+        clearInterval(autoFlushEventsTimerId);
+        autoFlushEventsTimerId = null;
+    };
+
+    this.autoFlushEventsStarted = false;
+    Object.defineProperty(this, "autoFlushEventsStarted", {
+        readonly: true,
+        configurable: true,
+        enumeable: true,
+        value: !!autoFlushEventsTimerId
+    });
 
 
 
