@@ -404,7 +404,7 @@ function MCS(options) {
      * @param {number} [period = 15000] in miliselcods
      */
     this.startAutoFlushEvents = function startAutoFlushEvents(period = 15000) {
-        expect(period).to.be.a('string');
+        expect(period).to.be.a('number');
         autoFlushEventsTimerId = setInterval(() => {
             this.flushEvents();
         }, period);
