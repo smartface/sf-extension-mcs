@@ -6,14 +6,17 @@
 * [MCS](#MCS)
     * [new MCS(options)](#new_MCS_new)
     * _instance_
+        * [.autoFlushEventsStarted](#MCS+autoFlushEventsStarted)
         * [.login(options, callback)](#MCS+login)
         * [.logout()](#MCS+logout)
         * [.registerDeviceToken(options, callback)](#MCS+registerDeviceToken)
         * [.deregisterDeviceToken(options, callback)](#MCS+deregisterDeviceToken)
-        * [.sendAnalytic(options, callback)](#MCS+sendAnalytic)
-        * [.sendBasicEvent(eventName, callback)](#MCS+sendBasicEvent)
+        * [.sendAnalytic(options, [callback])](#MCS+sendAnalytic)
+        * [.sendBasicEvent(eventName, [callback])](#MCS+sendBasicEvent)
         * [.storeBasicEvent(eventName)](#MCS+storeBasicEvent)
-        * [.flushEvents(callback)](#MCS+flushEvents)
+        * [.flushEvents([callback])](#MCS+flushEvents)
+        * [.startAutoFlushEvents([period])](#MCS+startAutoFlushEvents)
+        * [.stopAutoFlushEvents()](#MCS+stopAutoFlushEvents)
         * [.getCollectionList(callback)](#MCS+getCollectionList)
         * [.getItemListInCollection(options, callback)](#MCS+getItemListInCollection)
         * [.getItem(options, callback)](#MCS+getItem)
@@ -63,6 +66,16 @@ Creates new instace of MCS
 | options.androidApplicationKey | <code>string</code> | MCS Android Client Key |
 | options.iOSApplicationKey | <code>string</code> | MCS iOS Client Key |
 | options.anonymousKey | <code>string</code> | MCS Basic Anonymous Key |
+
+<a name="MCS+autoFlushEventsStarted"></a>
+
+### mcs.autoFlushEventsStarted
+**Kind**: instance property of [<code>MCS</code>](#MCS)  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| gets | <code>boolean</code> | calling flushEvents periodically is active or not |
 
 <a name="MCS+login"></a>
 
@@ -144,7 +157,7 @@ Deregister device push notification token from MCS
 
 <a name="MCS+sendAnalytic"></a>
 
-### mcs.sendAnalytic(options, callback)
+### mcs.sendAnalytic(options, [callback])
 Send Analytic Event to MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -156,11 +169,11 @@ Send Analytic Event to MCS
 | [options.deviceId] | <code>string</code> | can override what is set by the mcs lib |
 | [options.sessionId] | <code>string</code> | can override what is set by the mcs lib |
 | options.body | <code>object</code> | Event json array |
-| callback | [<code>sendAnalyticCallback</code>](#MCS..sendAnalyticCallback) | for sendAnalytic |
+| [callback] | [<code>sendAnalyticCallback</code>](#MCS..sendAnalyticCallback) | for sendAnalytic |
 
 <a name="MCS+sendBasicEvent"></a>
 
-### mcs.sendBasicEvent(eventName, callback)
+### mcs.sendBasicEvent(eventName, [callback])
 Send Analytic Event to MCS
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
@@ -168,7 +181,7 @@ Send Analytic Event to MCS
 | Param | Type | Description |
 | --- | --- | --- |
 | eventName | <code>string</code> | Event name |
-| callback | [<code>sendBasicEventCallback</code>](#MCS..sendBasicEventCallback) | for sendBasicEvent |
+| [callback] | [<code>sendBasicEventCallback</code>](#MCS..sendBasicEventCallback) | for sendBasicEvent |
 
 <a name="MCS+storeBasicEvent"></a>
 
@@ -183,15 +196,32 @@ stores basic events to be sent later. Similar to sendBasicEvent
 
 <a name="MCS+flushEvents"></a>
 
-### mcs.flushEvents(callback)
+### mcs.flushEvents([callback])
 Sends stored events
 
 **Kind**: instance method of [<code>MCS</code>](#MCS)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| callback | [<code>sendBasicEventCallback</code>](#MCS..sendBasicEventCallback) | for sendBasicEvent |
+| [callback] | [<code>sendBasicEventCallback</code>](#MCS..sendBasicEventCallback) | for sendBasicEvent |
 
+<a name="MCS+startAutoFlushEvents"></a>
+
+### mcs.startAutoFlushEvents([period])
+Starts calling flushEvents periodically
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [period] | <code>number</code> | <code>15000</code> | in miliselcods |
+
+<a name="MCS+stopAutoFlushEvents"></a>
+
+### mcs.stopAutoFlushEvents()
+Stops calling flushEvents periodically
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
 <a name="MCS+getCollectionList"></a>
 
 ### mcs.getCollectionList(callback)

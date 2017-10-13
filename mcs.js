@@ -399,12 +399,20 @@ function MCS(options) {
         }
     };
 
+    /**
+     * Starts calling flushEvents periodically
+     * @param {number} [period = 15000] in miliselcods
+     */
     this.startAutoFlushEvents = function startAutoFlushEvents(period = 15000) {
+        expect(period).to.be.a('string');
         autoFlushEventsTimerId = setInterval(() => {
             this.flushEvents();
         }, period);
     };
 
+    /**
+     * Stops calling flushEvents periodically
+     */ 
     this.stopAutoFlushEvents = function stopAutoFlushEvents() {
         if (!autoFlushEventsTimerId)
             return;
@@ -412,6 +420,9 @@ function MCS(options) {
         autoFlushEventsTimerId = null;
     };
 
+    /**
+     * @prop {boolean} gets calling flushEvents periodically is active or not
+     */
     this.autoFlushEventsStarted = false;
     Object.defineProperty(this, "autoFlushEventsStarted", {
         readonly: true,
