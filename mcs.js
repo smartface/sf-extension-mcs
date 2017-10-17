@@ -757,8 +757,8 @@ function MCS(options) {
 
         var version = options.version || "1.0";
         var apiName = options.apiName;
-        var endpointName = options.endpointName;
-        var urlBase = baseUrl + '/mobile/custom/' + apiName + '/' + endpointName;
+        var endpointPath = options.endpointPath;
+        var urlBase = baseUrl + '/mobile/custom/' + apiName + '/' + endpointPath;
         var headersBase = {
             'Content-Type': 'application/json',
             'Oracle-Mobile-Backend-Id': backendID,
