@@ -151,11 +151,13 @@ function MCS(options) {
 
         var packageName = options.packageName;
         var version = options.version;
+        var mcs = this;
 
         Notications.registerForPushNotifications(
             function(e) {
 
                 deviceToken = e.token;
+                mcs.notificationToken = e.token;
 
                 var notificationProvider = (System.OS == 'iOS') ? 'APNS' : 'GCM';
                 var url = baseUrl + '/mobile/platform/devices/register';
@@ -174,8 +176,6 @@ function MCS(options) {
                         platform: (System.OS == 'iOS') ? 'IOS' : 'ANDROID'
 
                     }
-
-
                 };
 
                 Http.request({
@@ -184,14 +184,18 @@ function MCS(options) {
                     'method': 'POST',
                     'body': JSON.stringify(body, null, '\t'),
                     'onLoad': function(e) {
-
-                        var response = JSON.parse(e.body.toString());
-
+                        var response;
+                        try {
+                            response = JSON.parse(e.body.toString());
+                        }
+                        catch (ex) {
+                            return callback(e.body.toString());
+                        }
                         if (response.id == null) {
-                            callback(e.body.toString());
+                            callback(response);
                         }
                         else {
-                            callback(null, e.body.toString());
+                            callback(null, response);
                         }
 
                     },
@@ -412,7 +416,7 @@ function MCS(options) {
 
     /**
      * Stops calling flushEvents periodically
-     */ 
+     */
     this.stopAutoFlushEvents = function stopAutoFlushEvents() {
         if (!autoFlushEventsTimerId)
             return;
