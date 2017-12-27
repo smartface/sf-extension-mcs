@@ -44,6 +44,23 @@ function MCS(options) {
     var autoFlushEventsTimerId;
 
     /**
+     * Sets API authorization header value. Compared to login, this does not check
+     * @method
+     * @param {object} options - authorization options
+     * @param {string} options.username - MCS Username
+     * @param {string} options.password - MCS Password
+     */
+    this.setAuthorization = function(options) {
+        expect(options).to.be.a('object');
+        expect(options).to.have.property('username').that.is.a('string');
+        expect(options).to.have.property('password').that.is.a('string');
+
+        var username = options.username;
+        var password = options.password;
+        authorization = 'Basic ' + Base64.encode(username + ':' + password);
+    };
+
+    /**
      * login to MCS
      * @method
      * @param {object} options - login options

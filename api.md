@@ -7,6 +7,7 @@
     * [new MCS(options)](#new_MCS_new)
     * _instance_
         * [.autoFlushEventsStarted](#MCS+autoFlushEventsStarted)
+        * [.setAuthorization(options)](#MCS+setAuthorization)
         * [.login(options, callback)](#MCS+login)
         * [.logout()](#MCS+logout)
         * [.registerDeviceToken(options, callback)](#MCS+registerDeviceToken)
@@ -76,6 +77,19 @@ Creates new instace of MCS
 | Name | Type | Description |
 | --- | --- | --- |
 | gets | <code>boolean</code> | calling flushEvents periodically is active or not |
+
+<a name="MCS+setAuthorization"></a>
+
+### mcs.setAuthorization(options)
+Sets API authorization header value. Compared to login, this does not check
+
+**Kind**: instance method of [<code>MCS</code>](#MCS)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> | authorization options |
+| options.username | <code>string</code> | MCS Username |
+| options.password | <code>string</code> | MCS Password |
 
 <a name="MCS+login"></a>
 
