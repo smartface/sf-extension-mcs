@@ -1,6 +1,6 @@
 {
   "name": "sf-extension-mcs",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Oracle MSC Plugin for Smartface Native Framework",
   "main": "mcs.js",
   "repository": {
@@ -24,7 +24,6 @@
   "devDependencies": {},
   "readmeFilename": "README.md",
   "peerDependencies": {
-    "chai": "^4.1.2",
-    "sf-extension-utils": "^3.1.1"
+    "sf-extension-utils": "^4.0.0"
   }
 }

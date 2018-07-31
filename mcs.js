@@ -1,10 +1,10 @@
 const Notications = require("sf-core/notifications");
-const http = require('sf-core/net/http');
-const Http = new http();
+const Http = require('sf-core/net/http');
+const http = new Http();
 const System = require('sf-core/device/system');
-const expect = require('chai').expect;
 const Base64_Helper = require("./base64");
 const Base64 = new Base64_Helper();
+const privates = new WeakSet();
 const Data = require('sf-core/data');
 const deviceId = Data.getStringVariable("mcs-deviceId") || (function() {
     var id = uuid();
@@ -26,22 +26,20 @@ require("sf-extension-utils/lib/base/timers"); //corrects setTimeout & setInterv
  * @param {string} options.iOSApplicationKey - MCS iOS Client Key
  * @param {string} options.anonymousKey - MCS Basic Anonymous Key
  */
-function MCS(options) {
-
-    expect(options).to.be.a('object');
-    expect(options).to.have.property('backendId').that.is.a('string');
-    expect(options).to.have.property('baseUrl').that.is.a('string');
-
-    const self = this;
-    var backendID = options.backendId;
-    var deviceToken;
-    var baseUrl = options.baseUrl;
-    var anonymousKey = options.anonymousKey;
-    var authorization = anonymousKey ? "Basic " + anonymousKey : "";
-    var androidApplicationKey = options.androidApplicationKey;
-    var iOSApplicationKey = options.iOSApplicationKey;
-    const eventStore = [];
-    var autoFlushEventsTimerId;
+class MCS {
+    constructor(options) {
+        privates.set(this, {
+            backendID: options.backendId,
+            deviceToken: null,
+            baseUrl: options.baseUrl,
+            anonymousKey: options.anonymousKey || "",
+            authorization: options.anonymousKey ? "Basic " + options.anonymousKey : "",
+            androidApplicationKey: options.androidApplicationKey,
+            iOSApplicationKey: options.iOSApplicationKey,
+            autoFlushEventsTimerId: null,
+            eventStore: []
+        });
+    }
 
     /**
      * Sets API authorization header value. Compared to login, this does not check
@@ -50,15 +48,10 @@ function MCS(options) {
      * @param {string} options.username - MCS Username
      * @param {string} options.password - MCS Password
      */
-    this.setAuthorization = function(options) {
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('username').that.is.a('string');
-        expect(options).to.have.property('password').that.is.a('string');
+    setAuthorization(options) {
+        privates[this].authorization = 'Basic ' + Base64.encode(options.username + ':' + options.password);
+    }
 
-        var username = options.username;
-        var password = options.password;
-        authorization = 'Basic ' + Base64.encode(username + ':' + password);
-    };
 
     /**
      * login to MCS
@@ -80,48 +73,36 @@ function MCS(options) {
      *     ]
      *   }
      */
-    this.login = function login(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('username').that.is.a('string');
-        expect(options).to.have.property('password').that.is.a('string');
-
-        var username = options.username;
-        var password = options.password;
-
-        var url = baseUrl + '/mobile/platform/users/' + username;
-        var headers = {
+    login(options, callback) {
+        const p = privates[this];
+        const username = options.username;
+        const password = options.password;
+        const url = p.baseUrl + '/mobile/platform/users/' + username;
+        const headers = {
             'oracle-mobile-api-version': '1.0',
             'Content-Type': 'application/json; charset=utf-8',
-            'Oracle-Mobile-Backend-Id': backendID,
+            'Oracle-Mobile-Backend-Id': p.backendID,
             'Authorization': 'Basic ' + Base64.encode(username + ':' + password)
         };
-        var body = '';
-
-        Http.request({
+        http.request({
             'url': url,
             'headers': headers,
             'method': 'GET',
-            'body': body,
             'onLoad': function(e) {
-
-                authorization = 'Basic ' + Base64.encode(username + ':' + password);
-
-                var response = JSON.parse(e.body.toString());
-
+                p.authorization = 'Basic ' + Base64.encode(username + ':' + password);
+                const response = JSON.parse(e.body.toString());
                 if (response.id == null) {
                     callback(e.body.toString());
                 }
                 else {
                     callback(null, e.body.toString());
                 }
-
             },
             'onError': function(e) {
                 callback(e);
             }
         });
-    };
+    }
 
     /**
      * @callback MCS~loginCallback
@@ -132,10 +113,12 @@ function MCS(options) {
 
     /**
      * Logs out authenticated user, using Anonymous Key if provided
+     * @method
      */
-    this.logout = function logout() {
-        authorization = anonymousKey ? "Basic " + anonymousKey : "";
-    };
+    logout() {
+        const p = privates[this];
+        p.authorization = p.anonymousKey ? "Basic " + p.anonymousKey : "";
+    }
 
 
     /**
@@ -159,33 +142,25 @@ function MCS(options) {
      *     "modifiedOn": "2015-05-05'T'12:09:33.281'Z"
      *   }
      */
-    this.registerDeviceToken = function registerDeviceToken(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('packageName').that.is.a('string');
-        expect(options).to.have.property('version').that.is.a('string');
-
-
-        var packageName = options.packageName;
-        var version = options.version;
-        var mcs = this;
+    registerDeviceToken(options, callback) {
+        const p = privates[this];
+        const packageName = options.packageName;
+        const version = options.version;
+        const mcs = this;
 
         Notications.registerForPushNotifications(
             function(e) {
-
-                deviceToken = e.token;
+                p.deviceToken = e.token;
                 mcs.notificationToken = e.token;
-
-                var notificationProvider = (System.OS == 'iOS') ? 'APNS' : 'GCM';
-                var url = baseUrl + '/mobile/platform/devices/register';
-                var headers = {
+                const notificationProvider = (System.OS == 'iOS') ? 'APNS' : 'GCM';
+                const url = p.baseUrl + '/mobile/platform/devices/register';
+                const headers = {
                     'Content-Type': 'application/json; charset=utf-8',
-                    'Oracle-Mobile-Backend-Id': backendID,
-                    'Authorization': authorization
+                    'Oracle-Mobile-Backend-Id': p.backendID,
+                    'Authorization': p.authorization
                 };
-
-                var body = {
-                    notificationToken: deviceToken,
+                const body = {
+                    notificationToken: p.deviceToken,
                     notificationProvider: notificationProvider,
                     mobileClient: {
                         id: packageName,
@@ -194,12 +169,11 @@ function MCS(options) {
 
                     }
                 };
-
-                Http.request({
+                http.request({
                     'url': url,
                     'headers': headers,
                     'method': 'POST',
-                    'body': JSON.stringify(body, null, '\t'),
+                    'body': JSON.stringify(body),
                     'onLoad': function(e) {
                         var response;
                         try {
@@ -226,7 +200,7 @@ function MCS(options) {
                 callback('Register failed.');
             }
         );
-    };
+    }
     /**
      * @callback MCS~registerDeviceTokenCallback
      * @param {string} err - Error
@@ -241,26 +215,19 @@ function MCS(options) {
      * @param {string} options.packageName - Application package name
      * @param {MCS~deregisterDeviceTokenCallback} callback for deregisterDeviceToken
      */
-    this.deregisterDeviceToken = function deregisterDeviceToken(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('packageName').that.is.a('string');
-
-
+    deregisterDeviceToken(options, callback) {
+        const p = privates[this];
         Notications.registerForPushNotifications(
             function(e) {
-
-                var packageName = options.packageName;
-
-                var notificationProvider = (System.OS == 'iOS') ? 'APNS' : 'GCM';
-                var url = baseUrl + '/mobile/platform/devices/deregister';
-                var headers = {
+                const packageName = options.packageName;
+                const notificationProvider = (System.OS == 'iOS') ? 'APNS' : 'GCM';
+                const url = p.baseUrl + '/mobile/platform/devices/deregister';
+                const headers = {
                     'Content-Type': 'application/json; charset=utf-8',
-                    'Oracle-Mobile-Backend-Id': backendID,
-                    'Authorization': authorization
+                    'Oracle-Mobile-Backend-Id': p.backendID,
+                    'Authorization': p.authorization
                 };
-
-                var body = {
+                const body = {
                     notificationToken: e.token,
                     notificationProvider: notificationProvider,
                     mobileClient: {
@@ -268,18 +235,14 @@ function MCS(options) {
                         platform: (System.OS == 'iOS') ? 'IOS' : 'ANDROID'
 
                     }
-
-
                 };
 
-
-                Http.request({
+                http.request({
                     'url': url,
                     'headers': headers,
                     'method': 'POST',
-                    'body': JSON.stringify(body, null, '\t'),
+                    'body': JSON.stringify(body),
                     'onLoad': function(e) {
-
                         callback(null, 'Device Deleted.');
                     },
                     'onError': function(e) {
@@ -289,10 +252,10 @@ function MCS(options) {
 
             },
             function() {
-                callback('Register failed.');
+                callback('Deregister failed.');
             }
         );
-    };
+    }
     /**
      * @callback MCS~deregisterDeviceTokenCallback
      * @param {string} err - Error
@@ -309,46 +272,40 @@ function MCS(options) {
      * @param {object} options.body - Event json array
      * @param {MCS~sendAnalyticCallback} [callback] for sendAnalytic
      */
-    this.sendAnalytic = function sendAnalytic(options, callback) {
-
-        expect(options).to.be.a('object');
-
-        var deviceID = options.deviceId || deviceId;
-        var sessionID = options.sessionId || sessionId;
-        var jsonBody = options.body;
-        var applicationKey = (System.OS == 'iOS') ? iOSApplicationKey : androidApplicationKey;
-        expect(applicationKey).to.be.a('string');
+    sendAnalytic(options, callback) {
+        const p = privates[this];
+        const deviceID = options.deviceId || deviceId;
+        const sessionID = options.sessionId || sessionId;
+        const jsonBody = options.body;
+        const applicationKey = (System.OS == 'iOS') ? p.iOSApplicationKey : p.androidApplicationKey;
 
         if (typeof jsonBody === "object")
             jsonBody = JSON.stringify(jsonBody);
 
-        var url = baseUrl + '/mobile/platform/analytics/events';
-        var headers = {
-            'Oracle-Mobile-Backend-Id': backendID,
-            'authorization': authorization,
+        const url = p.baseUrl + '/mobile/platform/analytics/events';
+        const headers = {
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'authorization': p.authorization,
             'Content-Type': 'application/json; charset=utf-8',
             'oracle-mobile-application-key': applicationKey,
             'oracle-mobile-analytics-session-id': sessionID,
             'oracle-mobile-device-id': deviceID,
         };
-        var body = jsonBody;
+        const body = jsonBody;
 
-        Http.request({
+        http.request({
             'url': url,
             'headers': headers,
             'method': 'POST',
             'body': body,
             'onLoad': function(e) {
-
                 var response = JSON.parse(e.body.toString());
-
                 if (response.message == null) {
                     callback && callback(e.body.toString());
                 }
                 else {
                     callback && callback(null, e.body.toString());
                 }
-
             },
             'onError': function(e) {
                 alert("Error " + e);
@@ -356,7 +313,7 @@ function MCS(options) {
             }
 
         });
-    };
+    }
     /**
      * @callback MCS~sendAnalyticCallback
      * @param {string} err - Error
@@ -371,46 +328,44 @@ function MCS(options) {
      * @param {string} eventName - Event name
      * @param {MCS~sendBasicEventCallback} [callback] for sendBasicEvent
      */
-    this.sendBasicEvent = function sendBasicEvent(eventName, callback) {
-
-        expect(eventName).to.be.a('string');
-
-        var body = [{
+    sendBasicEvent(eventName, callback) {
+        const body = [{
             "name": eventName,
             "type": "custom",
             "timestamp": new Date().toISOString()
         }];
+        this.sendAnalytic({ body }, callback);
 
-        options.body = body;
+    }
 
-        self.sendAnalytic(options, callback);
-
-    };
     /**
      * stores basic events to be sent later. Similar to sendBasicEvent
+     * @method
      * @param {string} eventName
      */
-    this.storeBasicEvent = function storeBasicEvent(eventName) {
-        expect(eventName).to.be.a('string');
-        eventStore.push({
+    storeBasicEvent(eventName) {
+        const p = privates[this];
+        p.eventStore.push({
             "name": eventName,
             "type": "custom",
             "timestamp": new Date().toISOString()
         });
-    };
+    }
 
     /**
      * Sends stored events
+     * @method
      * @param {MCS~sendBasicEventCallback} [callback] for sendBasicEvent
      */
-    this.flushEvents = function flushEvents(callback) {
-        if (eventStore.length > 0) {
-            var eventCache = eventStore.slice();
-            eventStore.length = 0;
+    flushEvents(callback) {
+        const p = privates[this];
+        if (p.eventStore.length > 0) {
+            var eventCache = p.eventStore.slice();
+            p.eventStore.length = 0;
 
             this.sendAnalytic({ body: eventCache }, (err, result) => {
                 if (err) {
-                    Array.prototype.unshift.apply(eventStore, eventCache);
+                    Array.prototype.unshift.apply(p.eventStore, eventCache);
                 }
                 callback && callback(err, result);
             });
@@ -418,39 +373,37 @@ function MCS(options) {
         else {
             callback && callback();
         }
-    };
+    }
 
     /**
      * Starts calling flushEvents periodically
+     * @method
      * @param {number} [period = 15000] in miliselcods
      */
-    this.startAutoFlushEvents = function startAutoFlushEvents(period = 15000) {
-        expect(period).to.be.a('number');
-        autoFlushEventsTimerId = setInterval(() => {
+    startAutoFlushEvents(period = 15000) {
+        privates[this].autoFlushEventsTimerId = setInterval(() => {
             this.flushEvents();
         }, period);
-    };
+    }
 
     /**
      * Stops calling flushEvents periodically
+     * @method
      */
-    this.stopAutoFlushEvents = function stopAutoFlushEvents() {
-        if (!autoFlushEventsTimerId)
+    stopAutoFlushEvents() {
+        const p = privates[this];
+        if (!p.autoFlushEventsTimerId)
             return;
-        clearInterval(autoFlushEventsTimerId);
-        autoFlushEventsTimerId = null;
-    };
+        clearInterval(p.autoFlushEventsTimerId);
+        p.autoFlushEventsTimerId = null;
+    }
 
     /**
      * @prop {boolean} gets calling flushEvents periodically is active or not
      */
-    this.autoFlushEventsStarted = false;
-    Object.defineProperty(this, "autoFlushEventsStarted", {
-        readonly: true,
-        configurable: true,
-        enumeable: true,
-        value: !!autoFlushEventsTimerId
-    });
+    get autoFlushEventsStarted() {
+        return !!privates[this].autoFlushEventsTimerId;
+    }
 
 
 
@@ -468,47 +421,34 @@ function MCS(options) {
      * @method
      * @param {MCS~getCollectionListCallback} callback for getCollectionList
      */
-    this.getCollectionList = function getCollectionList(callback) {
-
-
-        var url = baseUrl + '/mobile/platform/storage/collections';
-        var headers = {
+    getCollectionList(callback) {
+        const p = privates[this];
+        const url = p.baseUrl + '/mobile/platform/storage/collections';
+        const headers = {
             'oracle-mobile-api-version': '1.0',
             'Content-Type': 'application/json; charset=utf-8',
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'Authorization': p.authorization
         };
-        var body = '';
-
-
-        Http.request({
+        http.request({
             'url': url,
             'headers': headers,
             'method': 'GET',
-            'body': body,
             'onLoad': function(e) {
-
-                var response = JSON.parse(e.body.toString());
-
+                const response = JSON.parse(e.body.toString());
                 if (response.items == null) {
                     callback(e.body.toString());
                 }
                 else {
                     var resultArr = [];
                     for (var i = 0; i < response.items.length; i++) {
-
                         var arrayObject = {};
-
                         arrayObject.id = response.items[i].id;
                         arrayObject.description = response.items[i].description;
-
                         resultArr.push(arrayObject);
-
                     }
-
                     callback(null, resultArr);
                 }
-
             },
             'onError': function(e) {
                 callback(e);
@@ -527,38 +467,27 @@ function MCS(options) {
 
     /**
      * Get item list in collection from MCS
+     * @method
      * @param {string|object} options - MCS collection id
      * @param {string} options.collectionId - MCS collection id
      * @param {getItemListInCollectionCallback} callback for getItemListInCollection
      */
-    this.getItemListInCollection = function getItemListInCollection(options, callback) {
-
-        var collectionId = options;
-
-        if (typeof options === "object" && options.collectionId)
-            collectionId = options.collectionId;
-
-        expect(collectionId).to.be.a('string');
-
-        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
-        var headers = {
+    getItemListInCollection(options, callback) {
+        const p = privates[this];
+        const collectionId = (options && options.collectionId) || options;
+        const url = p.baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
+        const headers = {
             'oracle-mobile-api-version': '1.0',
             'Content-Type': 'application/json; charset=utf-8',
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'Authorization': p.authorization
         };
-        var body = '';
-
-
-        Http.request({
+        http.request({
             'url': url,
             'headers': headers,
             'method': 'GET',
-            'body': body,
             'onLoad': function(e) {
-
-                var response = JSON.parse(e.body.toString());
-
+                const response = JSON.parse(e.body.toString());
                 if (response.items == null) {
                     callback(e.body.toString());
                 }
@@ -571,7 +500,7 @@ function MCS(options) {
                 callback(e);
             }
         });
-    };
+    }
     /**
      * @callback MCS~getItemListInCollectionCallback
      * @param {string} err - Error
@@ -588,49 +517,36 @@ function MCS(options) {
 
     /**
      * Get item data from MCS
+     * @method
      * @param {object} options - Analytic options
      * @param {string} options.collectionId - MCS collection Id
      * @param {string} options.itemId - MCS item Id
      * @param {MCS~getItemCallback} callback for getItem
      *
      */
-    this.getItem = function getItem(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('collectionId').that.is.a('string');
-        expect(options).to.have.property('itemId').that.is.a('string');
-
-        var collectionId = options.collectionId;
-        var itemId = options.itemId;
-
-        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
-        var headers = {
+    getItem(options, callback) {
+        const p = privates[this];
+        const collectionId = (options && options.collectionId) || options;
+        const itemId = options.itemId;
+        const url = p.baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
+        const headers = {
             'oracle-mobile-api-version': '1.0',
             'Content-Type': 'application/json; charset=utf-8',
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'Authorization': p.authorization
         };
-        var body = '';
-
-
-        Http.request({
-                'url': url,
-                'headers': headers,
-                'method': 'GET',
-                'body': body,
-                'onLoad': function(e) {
-
-                    callback(null, e);
-
-                },
-                'onError': function(e) {
-                    callback(e);
-                }
-
+        http.request({
+            'url': url,
+            'headers': headers,
+            'method': 'GET',
+            'onLoad': function(e) {
+                callback(null, e);
+            },
+            'onError': function(e) {
+                callback(e);
             }
-
-        );
-    };
+        });
+    }
     /**
      * @callback MCS~getItemCallback
      * @param {string} err - Error
@@ -639,6 +555,7 @@ function MCS(options) {
 
     /**
      * Store item to MCS
+     * @method
      * @param {object} options - Analytic options
      * @param {string} options.collectionId - MCS collection Id
      * @param {string} options.itemName - item full name
@@ -646,46 +563,35 @@ function MCS(options) {
      * @param {string} options.contentType - item content type
      * @param {MCS~storeItemCallback} callback for storeItem
      */
-    this.storeItem = function storeItem(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('collectionId').that.is.a("string");
-        expect(options).to.have.property('itemName').that.is.a('string');
-        expect(options).to.have.property('base64EncodeData').that.is.a('string');
-        expect(options).to.have.property('contentType').that.is.a('string');
-
-        var collectionId = options.collectionId;
-        var itemName = options.itemName;
-        var base64EncodeData = options.base64EncodeData;
-        var contentType = options.contentType;
-
-
-        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
-        var headers = {
+    storeItem(options, callback) {
+        const p = privates[this];
+        const collectionId = (options && options.collectionId) || options;
+        const itemName = options.itemName;
+        const base64EncodeData = options.base64EncodeData;
+        const contentType = options.contentType;
+        const url = p.baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
+        const headers = {
             //'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization,
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'Authorization': p.authorization,
             'Oracle-Mobile-Name': itemName,
             'Content-Type': contentType
         };
-        var body = base64EncodeData;
-
-        Http.request({
+        const body = base64EncodeData;
+        http.request({
             'url': url,
             'headers': headers,
             'method': 'POST',
             'body': body,
             'onLoad': function(e) {
-
                 callback(null, e.body.toString());
-
             },
             'onError': function(e) {
                 callback(e);
             }
 
         });
-    };
+    }
     /**
      * @callback MCS~storeItemCallback
      * @param {string} err - Error
@@ -717,44 +623,36 @@ function MCS(options) {
 
     /**
      * Delete item data from MCS
+     * @method
      * @param {object} options - Analytic options
      * @param {string} options.collectionId - MCS collection Id
      * @param {string} options.itemId - MCS item Id
      * @param {MCS~deleteItemCallback} callback for deleteItem
      */
-    this.deleteItem = function deleteItem(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('collectionId').that.is.a("string");
-        expect(options).to.have.property('itemId').that.is.a('string');
-
-        var collectionId = options.collectionId;
-        var itemId = options.itemId;
-
-        var url = baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId +
+    deleteItem(options, callback) {
+        const p = privates[this];
+        const collectionId = options.collectionId;
+        const itemId = options.itemId;
+        const url = p.baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId +
             "?v=" + Math.floor(Math.random() * 100000); //added due to the SUPDEV-470 workaround
-        var headers = {
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization
+        const headers = {
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'Authorization': p.authorization
         };
-        var body = '';
 
-        Http.request({
+        http.request({
             'url': url,
             'headers': headers,
             'method': 'DELETE',
-            'body': body,
             'onLoad': function(e) {
-
                 callback(null, 'Item Deleted.');
-
             },
             'onError': function(e) {
                 callback(e);
             }
 
         });
-    };
+    }
     /**
      * @callback MCS~deleteItemCallback
      * @param {string} err - Error
@@ -770,68 +668,50 @@ function MCS(options) {
      * @param {string} [options.version = "1.0"] - API version, by default 1.0
      * @return {object} httpRequestOption to be used in Smartface request
      */
-    this.createRequestOptions = function createRequestOptions(options) {
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('apiName').that.is.a('string');
-        expect(options).to.have.property('endpointPath').that.is.a('string');
-        options.version && expect(options).to.have.property('version').that.is.a('string');
-
-        var version = options.version || "1.0";
-        var apiName = options.apiName;
-        var endpointPath = options.endpointPath;
-        var urlBase = baseUrl + '/mobile/custom/' + apiName + '/' + endpointPath;
-        var headersBase = {
+    createRequestOptions(options) {
+        const p = privates[this];
+        const version = options.version || "1.0";
+        const apiName = options.apiName;
+        const endpointPath = options.endpointPath;
+        const urlBase = p.baseUrl + '/mobile/custom/' + apiName + '/' + endpointPath;
+        const headersBase = {
             'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization,
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'Authorization': p.authorization,
             'oracle-mobile-api-version': version
         };
-
         return {
             url: urlBase,
             headers: headersBase
         };
 
-    };
-    /**
-     * @callback MCS~createRequestOptionsCallback
-     * @param {string} err - Error
-     * @param {string} result
-     */
-
+    }
 
     /**
      * Get application policies from MCS
      * @method
      * @param {MCS~getAppPoliciesCallback} callback for getAppPolicies
      */
-    this.getAppPolicies = function getAppPolicies(callback) {
-
-        var url = baseUrl + '/mobile/platform/appconfig/client';
-
-        var headers = {
+    getAppPolicies(callback) {
+        const p = privates[this];
+        const url = p.baseUrl + '/mobile/platform/appconfig/client';
+        const headers = {
             'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'Authorization': p.authorization
         };
-        var body = '';
-
-        Http.request({
+        http.request({
             'url': url,
             'headers': headers,
             'method': 'GET',
-            'body': body,
             'onLoad': function(e) {
-
                 callback(null, e.body.toString());
-
             },
             'onError': function(e) {
                 callback(e);
             }
-
         });
-    };
+    }
     /**
      * @callback MCS~getAppPoliciesCallback
      * @param {string} err - Error
@@ -845,22 +725,16 @@ function MCS(options) {
      * @param {object} options
      * @param {string} options.name
      * @param {MCS~getDeviceLocationsByNameCallback} callback for getDeviceLocationsByName
-     *
      */
-    this.getDeviceLocationsByName = function getDeviceLocationsByName(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('name').that.is.a("string");
-
-        var optionsLocal = {};
-        optionsLocal['key'] = 'name';
-        optionsLocal['value'] = options.name;
-        optionsLocal['pathStr'] = 'devices';
-        optionsLocal['isQuery'] = true;
-
-        getLocationList(optionsLocal, callback);
-
-    };
+    getDeviceLocationsByName(options, callback) {
+        const optionsLocal = {
+            key: 'name',
+            value: options.name || options,
+            pathStr: 'devices',
+            isQuery: true
+        };
+        this.getLocationList(optionsLocal, callback);
+    }
     /**
      * @callback MCS~getDeviceLocationsByNameCallback
      * @param {string} err - Error
@@ -875,20 +749,16 @@ function MCS(options) {
      * @param {string} options.id
      * @param {MCS~getDeviceLocationsByIdCallback} callback for getDeviceLocationsById
      */
-    this.getDeviceLocationsById = function getDeviceLocationsById(options, callback) {
+    getDeviceLocationsById(options, callback) {
+        const optionsLocal = {
+            key: 'name',
+            value: options.id || options,
+            pathStr: 'devices',
+            isQuery: false
+        };
+        this.getLocationList(optionsLocal, callback);
 
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('id').that.is.a("string");
-
-        var optionsLocal = {};
-        optionsLocal['key'] = 'name';
-        optionsLocal['value'] = options.id;
-        optionsLocal['pathStr'] = 'devices';
-        optionsLocal['isQuery'] = false;
-
-        getLocationList(optionsLocal, callback);
-
-    };
+    }
     /**
      * @callback MCS~getDeviceLocationsByIdCallback
      * @param {string} err - Error
@@ -903,20 +773,15 @@ function MCS(options) {
      * @param {string} options.name
      * @param {MCS~getPlaceByNameCallback} callback for getPlaceByName
      */
-    this.getPlaceByName = function getPlaceByName(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('name').that.is.a("string");
-
-        var optionsLocal = {};
-        optionsLocal['key'] = 'name';
-        optionsLocal['value'] = options.name;
-        optionsLocal['pathStr'] = 'places';
-        optionsLocal['isQuery'] = true;
-
-        getLocationList(optionsLocal, callback);
-
-    };
+    getPlaceByName(options, callback) {
+        const optionsLocal = {
+            key: 'name',
+            value: options.name || options,
+            pathStr: 'places',
+            isQuery: true
+        };
+        this.getLocationList(optionsLocal, callback);
+    }
     /**
      * @callback MCS~getPlaceByNameCallback
      * @param {string} err - Error
@@ -933,20 +798,15 @@ function MCS(options) {
      * @param {MCS~getPlaceByIdCallback} callback for getPlaceById
      *
      */
-    this.getPlaceById = function getPlaceById(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('id').that.is.a("string");
-
-        var optionsLocal = {};
-        optionsLocal['key'] = 'name';
-        optionsLocal['value'] = options.id;
-        optionsLocal['pathStr'] = 'places';
-        optionsLocal['isQuery'] = false;
-
-        getLocationList(optionsLocal, callback);
-
-    };
+    getPlaceById(options, callback) {
+        const optionsLocal = {
+            key: 'name',
+            value: options.id || options,
+            pathStr: 'places',
+            isQuery: false
+        };
+        this.getLocationList(optionsLocal, callback);
+    }
     /**
      * @callback MCS~getPlaceByIdCallback
      * @param {string} err - Error
@@ -962,20 +822,15 @@ function MCS(options) {
      * @param {MCS~getAssetByNameCallback} callback for getAssetByName
      *
      */
-    this.getAssetByName = function getAssetByName(options, callback) {
-
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('name').that.is.a("string");
-
-        var optionsLocal = {};
-        optionsLocal['key'] = 'name';
-        optionsLocal['value'] = options.name;
-        optionsLocal['pathStr'] = 'assets';
-        optionsLocal['isQuery'] = true;
-
-        getLocationList(optionsLocal, callback);
-
-    };
+    getAssetByName(options, callback) {
+        const optionsLocal = {
+            key: 'name',
+            value: options.name || options,
+            pathStr: 'assets',
+            isQuery: true
+        };
+        this.getLocationList(optionsLocal, callback);
+    }
     /**
      * @callback MCS~getAssetByNameCallback
      * @param {string} err - Error
@@ -991,21 +846,16 @@ function MCS(options) {
      * @param {MCS~getAssetByIdCallback} callback for getAssetById
      *
      */
-    this.getAssetById = function getAssetById(options, callback) {
+    getAssetById(options, callback) {
+        const optionsLocal = {
+            key: 'name',
+            value: options.id || options,
+            pathStr: 'assets',
+            isQuery: false
+        };
+        this.getLocationList(optionsLocal, callback);
 
-        expect(options).to.be.a('object');
-        expect(options).to.have.property('id').that.is.a("string");
-
-
-        var optionsLocal = {};
-        optionsLocal['key'] = 'name';
-        optionsLocal['value'] = options.id;
-        optionsLocal['pathStr'] = 'assets';
-        optionsLocal['isQuery'] = false;
-
-        getLocationList(optionsLocal, callback);
-
-    };
+    }
     /**
      * @callback MCS~getAssetByIdCallback
      * @param {string} err - Error
@@ -1022,44 +872,34 @@ function MCS(options) {
      * @param {string} options.pathStr
      * @param {string} options.isQuery
      * @param {MCS~getLocationListCallback} callback for getLocationList
-     * 
      */
-    function getLocationList(options, callback) {
+    getLocationList(options, callback) {
+        const p = privates[this];
+        const key = options.key;
+        const value = options.value;
+        const pathStr = options.pathStr;
+        const isQuery = options.isQuery;
 
-        var key = options.key;
-        var value = options.value;
-        var pathStr = options.pathStr;
-        var isQuery = options.isQuery;
-
-        var url = baseUrl + '/mobile/platform/location/' + pathStr;
-
-
+        var url = p.baseUrl + '/mobile/platform/location/' + pathStr;
         if (isQuery) {
-
             url += '?' + key + '=' + value;
         }
         else {
             url += '/' + value;
         }
-
-
-        var headers = {
+        const headers = {
             'Content-Type': 'application/json',
-            'Oracle-Mobile-Backend-Id': backendID,
-            'Authorization': authorization,
+            'Oracle-Mobile-Backend-Id': p.backendID,
+            'Authorization': p.authorization,
             key: value
         };
-        var body = '';
 
-        Http.request({
+        http.request({
             'url': url,
             'headers': headers,
             'method': 'GET',
-            'body': body,
             'onLoad': function(e) {
-
                 callback(null, e.body.toString());
-
             },
             'onError': function(e) {
                 callback(e);
@@ -1073,10 +913,13 @@ function MCS(options) {
      * @param {string} result
      */
 
+
 }
 
 
 module.exports = MCS;
+
+
 
 function uuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
