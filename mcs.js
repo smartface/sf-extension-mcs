@@ -4,7 +4,7 @@ const http = new Http();
 const System = require('sf-core/device/system');
 const Base64_Helper = require("./base64");
 const Base64 = new Base64_Helper();
-const privates = new WeakSet();
+const privates = new WeakMap();
 const Data = require('sf-core/data');
 const deviceId = Data.getStringVariable("mcs-deviceId") || (function() {
     var id = uuid();
@@ -74,7 +74,7 @@ class MCS {
      *   }
      */
     login(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const username = options.username;
         const password = options.password;
         const url = p.baseUrl + '/mobile/platform/users/' + username;
@@ -116,7 +116,7 @@ class MCS {
      * @method
      */
     logout() {
-        const p = privates[this];
+        const p = privates.get(this);
         p.authorization = p.anonymousKey ? "Basic " + p.anonymousKey : "";
     }
 
@@ -143,7 +143,7 @@ class MCS {
      *   }
      */
     registerDeviceToken(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const packageName = options.packageName;
         const version = options.version;
         const mcs = this;
@@ -216,7 +216,7 @@ class MCS {
      * @param {MCS~deregisterDeviceTokenCallback} callback for deregisterDeviceToken
      */
     deregisterDeviceToken(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         Notications.registerForPushNotifications(
             function(e) {
                 const packageName = options.packageName;
@@ -273,7 +273,7 @@ class MCS {
      * @param {MCS~sendAnalyticCallback} [callback] for sendAnalytic
      */
     sendAnalytic(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const deviceID = options.deviceId || deviceId;
         const sessionID = options.sessionId || sessionId;
         const jsonBody = options.body;
@@ -344,7 +344,7 @@ class MCS {
      * @param {string} eventName
      */
     storeBasicEvent(eventName) {
-        const p = privates[this];
+        const p = privates.get(this);
         p.eventStore.push({
             "name": eventName,
             "type": "custom",
@@ -358,7 +358,7 @@ class MCS {
      * @param {MCS~sendBasicEventCallback} [callback] for sendBasicEvent
      */
     flushEvents(callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         if (p.eventStore.length > 0) {
             var eventCache = p.eventStore.slice();
             p.eventStore.length = 0;
@@ -391,7 +391,7 @@ class MCS {
      * @method
      */
     stopAutoFlushEvents() {
-        const p = privates[this];
+        const p = privates.get(this);
         if (!p.autoFlushEventsTimerId)
             return;
         clearInterval(p.autoFlushEventsTimerId);
@@ -422,7 +422,7 @@ class MCS {
      * @param {MCS~getCollectionListCallback} callback for getCollectionList
      */
     getCollectionList(callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const url = p.baseUrl + '/mobile/platform/storage/collections';
         const headers = {
             'oracle-mobile-api-version': '1.0',
@@ -473,7 +473,7 @@ class MCS {
      * @param {getItemListInCollectionCallback} callback for getItemListInCollection
      */
     getItemListInCollection(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const collectionId = (options && options.collectionId) || options;
         const url = p.baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects';
         const headers = {
@@ -525,7 +525,7 @@ class MCS {
      *
      */
     getItem(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const collectionId = (options && options.collectionId) || options;
         const itemId = options.itemId;
         const url = p.baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId;
@@ -564,7 +564,7 @@ class MCS {
      * @param {MCS~storeItemCallback} callback for storeItem
      */
     storeItem(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const collectionId = (options && options.collectionId) || options;
         const itemName = options.itemName;
         const base64EncodeData = options.base64EncodeData;
@@ -630,7 +630,7 @@ class MCS {
      * @param {MCS~deleteItemCallback} callback for deleteItem
      */
     deleteItem(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const collectionId = options.collectionId;
         const itemId = options.itemId;
         const url = p.baseUrl + '/mobile/platform/storage/collections/' + collectionId + '/objects/' + itemId +
@@ -669,7 +669,7 @@ class MCS {
      * @return {object} httpRequestOption to be used in Smartface request
      */
     createRequestOptions(options) {
-        const p = privates[this];
+        const p = privates.get(this);
         const version = options.version || "1.0";
         const apiName = options.apiName;
         const endpointPath = options.endpointPath;
@@ -693,7 +693,7 @@ class MCS {
      * @param {MCS~getAppPoliciesCallback} callback for getAppPolicies
      */
     getAppPolicies(callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const url = p.baseUrl + '/mobile/platform/appconfig/client';
         const headers = {
             'Content-Type': 'application/json',
@@ -874,7 +874,7 @@ class MCS {
      * @param {MCS~getLocationListCallback} callback for getLocationList
      */
     getLocationList(options, callback) {
-        const p = privates[this];
+        const p = privates.get(this);
         const key = options.key;
         const value = options.value;
         const pathStr = options.pathStr;
