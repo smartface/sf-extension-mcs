@@ -21,9 +21,14 @@
   },
   "license": "ISC",
   "homepage": "https://bitbucket.org/smartface-team/sf-extension-mcs#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "jsdoc-to-markdown": "^4.0.1"
+  },
   "readmeFilename": "README.md",
   "peerDependencies": {
     "sf-extension-utils": "^4.0.0"
+  },
+  "scripts": {
+    "docs": "bash ./createdoc.sh"
   }
 }
