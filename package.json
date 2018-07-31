@@ -5,7 +5,7 @@
   "main": "mcs.js",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org:smartface-team/sf-extension-mcs.git"
+    "url": "git+ssh://git@github.com:smartface/sf-extension-mcs.git"
   },
   "keywords": [
     "smartface",
@@ -20,7 +20,7 @@
     "url": "http://smartface.io"
   },
   "license": "ISC",
-  "homepage": "https://bitbucket.org/smartface-team/sf-extension-mcs#readme",
+  "homepage": "https://github.com/smartface/sf-extension-mcs#readme",
   "devDependencies": {
     "jsdoc-to-markdown": "^4.0.1"
   },
