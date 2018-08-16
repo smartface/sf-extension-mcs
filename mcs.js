@@ -1,6 +1,5 @@
 const Notications = require("sf-core/notifications");
 const Http = require('sf-core/net/http');
-const http = new Http();
 const System = require('sf-core/device/system');
 const Base64_Helper = require("./base64");
 const Base64 = new Base64_Helper();
@@ -11,6 +10,8 @@ const deviceId = Data.getStringVariable("mcs-deviceId") || (function() {
     Data.setStringVariable("mcs-deviceId", id);
     return id;
 })();
+const { createAsyncGetter } = require("sf-extension-utils/lib/async");
+const getHttp = createAsyncGetter(() => new Http());
 
 const sessionId = uuid();
 
@@ -84,23 +85,25 @@ class MCS {
             'Oracle-Mobile-Backend-Id': p.backendID,
             'Authorization': 'Basic ' + Base64.encode(username + ':' + password)
         };
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'GET',
-            'onLoad': function(e) {
-                p.authorization = 'Basic ' + Base64.encode(username + ':' + password);
-                const response = JSON.parse(e.body.toString());
-                if (response.id == null) {
-                    callback(e.body.toString());
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'GET',
+                'onLoad': function(e) {
+                    p.authorization = 'Basic ' + Base64.encode(username + ':' + password);
+                    const response = JSON.parse(e.body.toString());
+                    if (response.id == null) {
+                        callback(e.body.toString());
+                    }
+                    else {
+                        callback(null, e.body.toString());
+                    }
+                },
+                'onError': function(e) {
+                    callback(e);
                 }
-                else {
-                    callback(null, e.body.toString());
-                }
-            },
-            'onError': function(e) {
-                callback(e);
-            }
+            });
         });
     }
 
@@ -169,32 +172,33 @@ class MCS {
 
                     }
                 };
-                http.request({
-                    'url': url,
-                    'headers': headers,
-                    'method': 'POST',
-                    'body': JSON.stringify(body),
-                    'onLoad': function(e) {
-                        var response;
-                        try {
-                            response = JSON.parse(e.body.toString());
-                        }
-                        catch (ex) {
-                            return callback(e.body.toString());
-                        }
-                        if (response.id == null) {
-                            callback(response);
-                        }
-                        else {
-                            callback(null, response);
-                        }
+                getHttp().then(http => {
+                    http.request({
+                        'url': url,
+                        'headers': headers,
+                        'method': 'POST',
+                        'body': JSON.stringify(body),
+                        'onLoad': function(e) {
+                            var response;
+                            try {
+                                response = JSON.parse(e.body.toString());
+                            }
+                            catch (ex) {
+                                return callback(e.body.toString());
+                            }
+                            if (response.id == null) {
+                                callback(response);
+                            }
+                            else {
+                                callback(null, response);
+                            }
 
-                    },
-                    'onError': function(e) {
-                        callback(e);
-                    }
+                        },
+                        'onError': function(e) {
+                            callback(e);
+                        }
+                    });
                 });
-
             },
             function() {
                 callback('Register failed.');
@@ -236,20 +240,20 @@ class MCS {
 
                     }
                 };
-
-                http.request({
-                    'url': url,
-                    'headers': headers,
-                    'method': 'POST',
-                    'body': JSON.stringify(body),
-                    'onLoad': function(e) {
-                        callback(null, 'Device Deleted.');
-                    },
-                    'onError': function(e) {
-                        callback(e);
-                    }
+                getHttp().then(http => {
+                    http.request({
+                        'url': url,
+                        'headers': headers,
+                        'method': 'POST',
+                        'body': JSON.stringify(body),
+                        'onLoad': function(e) {
+                            callback(null, 'Device Deleted.');
+                        },
+                        'onError': function(e) {
+                            callback(e);
+                        }
+                    });
                 });
-
             },
             function() {
                 callback('Deregister failed.');
@@ -293,25 +297,27 @@ class MCS {
         };
         const body = jsonBody;
 
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'POST',
-            'body': body,
-            'onLoad': function(e) {
-                var response = JSON.parse(e.body.toString());
-                if (response.message == null) {
-                    callback && callback(e.body.toString());
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'POST',
+                'body': body,
+                'onLoad': function(e) {
+                    var response = JSON.parse(e.body.toString());
+                    if (response.message == null) {
+                        callback && callback(e.body.toString());
+                    }
+                    else {
+                        callback && callback(null, e.body.toString());
+                    }
+                },
+                'onError': function(e) {
+                    alert("Error " + e);
+                    callback && callback(e);
                 }
-                else {
-                    callback && callback(null, e.body.toString());
-                }
-            },
-            'onError': function(e) {
-                alert("Error " + e);
-                callback && callback(e);
-            }
 
+            });
         });
     }
     /**
@@ -430,32 +436,34 @@ class MCS {
             'Oracle-Mobile-Backend-Id': p.backendID,
             'Authorization': p.authorization
         };
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'GET',
-            'onLoad': function(e) {
-                const response = JSON.parse(e.body.toString());
-                if (response.items == null) {
-                    callback(e.body.toString());
-                }
-                else {
-                    var resultArr = [];
-                    for (var i = 0; i < response.items.length; i++) {
-                        var arrayObject = {};
-                        arrayObject.id = response.items[i].id;
-                        arrayObject.description = response.items[i].description;
-                        resultArr.push(arrayObject);
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'GET',
+                'onLoad': function(e) {
+                    const response = JSON.parse(e.body.toString());
+                    if (response.items == null) {
+                        callback(e.body.toString());
                     }
-                    callback(null, resultArr);
+                    else {
+                        var resultArr = [];
+                        for (var i = 0; i < response.items.length; i++) {
+                            var arrayObject = {};
+                            arrayObject.id = response.items[i].id;
+                            arrayObject.description = response.items[i].description;
+                            resultArr.push(arrayObject);
+                        }
+                        callback(null, resultArr);
+                    }
+                },
+                'onError': function(e) {
+                    callback(e);
                 }
-            },
-            'onError': function(e) {
-                callback(e);
-            }
 
+            });
         });
-    };
+    }
     /**
      * @callback MCS~getCollectionListCallback
      * @param {string} err - Error
@@ -482,23 +490,25 @@ class MCS {
             'Oracle-Mobile-Backend-Id': p.backendID,
             'Authorization': p.authorization
         };
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'GET',
-            'onLoad': function(e) {
-                const response = JSON.parse(e.body.toString());
-                if (response.items == null) {
-                    callback(e.body.toString());
-                }
-                else {
-                    callback(null, response.items);
-                }
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'GET',
+                'onLoad': function(e) {
+                    const response = JSON.parse(e.body.toString());
+                    if (response.items == null) {
+                        callback(e.body.toString());
+                    }
+                    else {
+                        callback(null, response.items);
+                    }
 
-            },
-            'onError': function(e) {
-                callback(e);
-            }
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
+            });
         });
     }
     /**
@@ -535,16 +545,18 @@ class MCS {
             'Oracle-Mobile-Backend-Id': p.backendID,
             'Authorization': p.authorization
         };
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'GET',
-            'onLoad': function(e) {
-                callback(null, e);
-            },
-            'onError': function(e) {
-                callback(e);
-            }
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'GET',
+                'onLoad': function(e) {
+                    callback(null, e);
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
+            });
         });
     }
     /**
@@ -578,18 +590,20 @@ class MCS {
             'Content-Type': contentType
         };
         const body = base64EncodeData;
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'POST',
-            'body': body,
-            'onLoad': function(e) {
-                callback(null, e.body.toString());
-            },
-            'onError': function(e) {
-                callback(e);
-            }
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'POST',
+                'body': body,
+                'onLoad': function(e) {
+                    callback(null, e.body.toString());
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
 
+            });
         });
     }
     /**
@@ -639,18 +653,19 @@ class MCS {
             'Oracle-Mobile-Backend-Id': p.backendID,
             'Authorization': p.authorization
         };
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'DELETE',
+                'onLoad': function(e) {
+                    callback(null, 'Item Deleted.');
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
 
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'DELETE',
-            'onLoad': function(e) {
-                callback(null, 'Item Deleted.');
-            },
-            'onError': function(e) {
-                callback(e);
-            }
-
+            });
         });
     }
     /**
@@ -700,16 +715,18 @@ class MCS {
             'Oracle-Mobile-Backend-Id': p.backendID,
             'Authorization': p.authorization
         };
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'GET',
-            'onLoad': function(e) {
-                callback(null, e.body.toString());
-            },
-            'onError': function(e) {
-                callback(e);
-            }
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'GET',
+                'onLoad': function(e) {
+                    callback(null, e.body.toString());
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
+            });
         });
     }
     /**
@@ -894,17 +911,19 @@ class MCS {
             key: value
         };
 
-        http.request({
-            'url': url,
-            'headers': headers,
-            'method': 'GET',
-            'onLoad': function(e) {
-                callback(null, e.body.toString());
-            },
-            'onError': function(e) {
-                callback(e);
-            }
+        getHttp().then(http => {
+            http.request({
+                'url': url,
+                'headers': headers,
+                'method': 'GET',
+                'onLoad': function(e) {
+                    callback(null, e.body.toString());
+                },
+                'onError': function(e) {
+                    callback(e);
+                }
 
+            });
         });
     }
     /**
