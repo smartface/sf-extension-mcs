@@ -1,6 +1,8 @@
-# MCS Extension from Smartface
-[![Twitter: @Smartface_io](https://img.shields.io/badge/contact-@Smartface_io-blue.svg?style=flat)](https://twitter.com/smartface_io)
-[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/smartface/sf-extension-spriteview/master/LICENSE)
+# DEPRECATED
+
+This is no longer supported, please consider using [sf-extension-amce](https://github.com/smartface/sf-extension-amce) instead.
+
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
 An extension to Oracle MCS Connection with Smartface Native Framework.
 
